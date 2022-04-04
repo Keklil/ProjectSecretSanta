@@ -60,5 +60,29 @@ namespace SecretSanta_Backend.Controllers
         {
             return Ok();
         }
-    }
+
+
+        [HttpGet]
+        public IEnumerable<Event> Get()
+        {
+            return repository.Event.FindAll().ToArray();
+        }
+
+
+        [HttpGet("id")]
+        public ActionResult<Event> GetById(Guid ID)
+        {
+            try
+            {
+                return repository.Event.FindByCondition(x => x.Id == ID).First();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Incorrectly passed ID argument: { ex.Message}.");
+                if (ID == Guid.Empty)
+                    return BadRequest("Request argument omitted.");
+                return BadRequest("Game with this Id does not exist.");
+            }
+        }
+    } 
 }
