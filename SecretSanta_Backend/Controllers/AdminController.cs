@@ -54,5 +54,11 @@ namespace SecretSanta_Backend.Controllers
                 return StatusCode(500, "Internal server error");
             } 
         }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteEvent([FromBody]Event model)
+        {
+            return Ok();
+        }
     }
 }
