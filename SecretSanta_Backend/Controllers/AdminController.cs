@@ -50,7 +50,7 @@ namespace SecretSanta_Backend.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Something went wrong inside CreateOwner action: {ex.Message}");
+                _logger.LogError($"Something went wrong inside CreateEvent action: {ex.Message}");
                 return StatusCode(500, "Internal server error");
             } 
         }
