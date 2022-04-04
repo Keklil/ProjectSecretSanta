@@ -1,6 +1,7 @@
 ﻿using SecretSanta_Backend.Interfaces;
 using SecretSanta_Backend.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace SecretSanta_Backend.Configuration
 {
@@ -32,9 +33,7 @@ namespace SecretSanta_Backend.Configuration
 
         public static void ConfigurePostgreSqlContext(this IServiceCollection services, IConfiguration config)
         {
-            string connection = config["DefaultConnection"];
-
-            services.AddDbContext<ApplicationContext>(options => options.UseNpgsql(connection));
+            services.AddDbContext<ApplicationContext>(options => options.UseNpgsql(config.GetConnectionString("DefaultConnection")));
         }
     }
 }

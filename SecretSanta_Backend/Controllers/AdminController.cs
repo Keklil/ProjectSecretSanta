@@ -19,11 +19,11 @@ namespace SecretSanta_Backend.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateEvent(Event @event)
+        public async Task<IActionResult> CreateEvent([FromBody]Event model)
         {
             try
             {
-                if (@event is null)
+                if (model is null)
                 {
                     _logger.LogError("Event object recived from client is null.");
                     return BadRequest("Null object");
@@ -33,6 +33,15 @@ namespace SecretSanta_Backend.Controllers
                     _logger.LogError("Event object recived from client is not valid.");
                     return BadRequest("Invalid object");
                 }
+
+                var eventId = Guid.NewGuid();
+                var @event = new Event
+                {
+                    Id = eventId,
+                    Description = model.Description,
+                    Endofevent = model.Endofevent,
+                    Endofregistration = model.Endofregistration
+                };
 
                 repository.Event.CreateEvent(@event);
                 repository.Save();
