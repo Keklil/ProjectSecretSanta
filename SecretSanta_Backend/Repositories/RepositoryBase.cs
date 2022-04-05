@@ -16,8 +16,8 @@ namespace SecretSanta_Backend.Repositories
         {
             this.context = context;
         }
-        public IEnumerable<T> FindAll() => context.Set<T>().AsNoTracking();
-        public IEnumerable<T> FindByCondition(Expression<Func<T, bool>> expression) =>
+        public IQueryable<T> FindAll() => context.Set<T>().AsNoTracking();
+        public IQueryable<T> FindByCondition(Expression<Func<T, bool>> expression) =>
             context.Set<T>().Where(expression).AsNoTracking();
         public void Create(T entity) => context.Set<T>().Add(entity);
         public void Update(T entity) => context.Set<T>().Update(entity);

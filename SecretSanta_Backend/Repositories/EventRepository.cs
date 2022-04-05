@@ -11,5 +11,8 @@ namespace SecretSanta_Backend.Repositories
         }
 
         public void CreateEvent(Event @event) => Create(@event);
+        public void UpdateEvent(Event @event) => Update(@event);
+        public void DeleteEvent(Event @event) => Delete(@event);
+
     }
 }

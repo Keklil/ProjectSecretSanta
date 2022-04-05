@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc;
 using SecretSanta_Backend.Models;
 using SecretSanta_Backend.Interfaces;
+using AutoMapper;
 
 namespace SecretSanta_Backend.Controllers
 {
@@ -9,12 +11,13 @@ namespace SecretSanta_Backend.Controllers
     public class AdminController : ControllerBase
     {
         private IRepositoryWrapper repository;
-
+        private IMapper mapper;
         private readonly ILogger<AdminController> _logger;
 
-        public AdminController(ILogger<AdminController> logger, IRepositoryWrapper repository)
+        public AdminController(ILogger<AdminController> logger, IRepositoryWrapper repository, IMapper mapper)
         {
             _logger = logger;
+            this.mapper = mapper;
             this.repository = repository;
         }
 
@@ -55,11 +58,28 @@ namespace SecretSanta_Backend.Controllers
             } 
         }
 
-        [HttpDelete("{id:guid}")]
-        public IActionResult DeleteEvent(Guid eventId)
+        [HttpDelete("id")]
+        public IActionResult DeleteEvent(Guid ID)
         {
+            try
+            {
+                var @event = repository.Event.FindByCondition(x => x.Id == ID).First();
+                if (@event is null)
+                {
+                    _logger.LogError($"Event with ID: {ID} not found");
+                    return BadRequest("Event not found");
+                }
 
-            return Ok();
+                repository.Event.Delete(@event);
+                repository.Save();
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Incorrectly passed ID argument: { ex.Message}.");
+                return StatusCode(500, "Internal server error");
+            }
         }
 
 
