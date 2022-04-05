@@ -19,7 +19,7 @@ namespace SecretSanta_Backend.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateEvent([FromBody]Event model)
+        public IActionResult CreateEvent([FromBody]Event model)
         {
             try
             {
@@ -55,8 +55,8 @@ namespace SecretSanta_Backend.Controllers
             } 
         }
 
-        [HttpDelete]
-        public async Task<IActionResult> DeleteEvent([FromBody]Event model)
+        [HttpDelete("{id:guid}")]
+        public IActionResult DeleteEvent(Guid eventId)
         {
 
             return Ok();
