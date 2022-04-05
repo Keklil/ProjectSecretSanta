@@ -39,8 +39,8 @@ namespace SecretSanta_Backend.Controllers
                 {
                     Id = eventId,
                     Description = model.Description,
-                    Endofevent = model.Endofevent,
-                    Endofregistration = model.Endofregistration
+                    EndEvent = model.EndEvent,
+                    EndRegistration = model.EndRegistration
                 };
 
                 repository.Event.CreateEvent(@event);
@@ -58,6 +58,7 @@ namespace SecretSanta_Backend.Controllers
         [HttpDelete]
         public async Task<IActionResult> DeleteEvent([FromBody]Event model)
         {
+
             return Ok();
         }
     }

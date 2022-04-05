@@ -10,6 +10,5 @@ namespace SecretSanta_Backend.Models
         public string Surname { get; set; } = null!;
         public string Patronymic { get; set; } = null!;
         public string Email { get; set; } = null!;
-        public bool? Attend { get; set; }
     }
 }

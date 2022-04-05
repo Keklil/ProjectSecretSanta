@@ -12,7 +12,6 @@ namespace SecretSanta_Backend.Models
         public string City { get; set; } = null!;
         public string Street { get; set; } = null!;
         public string? Apartment { get; set; }
-        public string? Preferences { get; set; }
 
         public virtual Member Member { get; set; } = null!;
     }
