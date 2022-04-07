@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace SecretSanta_Backend.Models
+namespace SecretSanta_Backend.ModelsDTO
 {
-    public partial class Member
+    public partial class MemberDTO
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = null!;

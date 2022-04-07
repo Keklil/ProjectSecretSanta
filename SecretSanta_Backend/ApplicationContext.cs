@@ -22,15 +22,6 @@ namespace SecretSanta_Backend
         public virtual DbSet<Member> Members { get; set; } = null!;
         public virtual DbSet<MemberEvent> MemberEvents { get; set; } = null!;
 
-        /*       protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-                {
-                    if (!optionsBuilder.IsConfigured)
-                    {
-        #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                        optionsBuilder.UseNpgsql("Server=ec2-99-80-170-190.eu-west-1.compute.amazonaws.com; Port=5432; Database=dau95sjnjljv1t; User Id=ydbbazjjlagdww; Password=4851b131d7c6d27d9c1c99840f49f1e93ae23e23ae2945024c1976ec589350fc;");
-                    }
-                }
-        */
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Address>(entity =>
@@ -41,31 +32,29 @@ namespace SecretSanta_Backend
 
                 entity.Property(e => e.Apartment)
                     .HasMaxLength(5)
-                    .HasColumnName("APARTMENT");
+                    .HasColumnName("apartment");
 
                 entity.Property(e => e.City)
                     .HasMaxLength(50)
-                    .HasColumnName("CITY");
+                    .HasColumnName("city");
 
-                entity.Property(e => e.MemberId).HasColumnName("MEMBER_ID");
+                entity.Property(e => e.MemberId).HasColumnName("member_id");
 
                 entity.Property(e => e.PhoneNumber)
                     .HasMaxLength(10)
-                    .HasColumnName("PHONE_NUMBER");
-
-                entity.Property(e => e.Preferences).HasColumnName("PREFERENCES");
+                    .HasColumnName("phone_number");
 
                 entity.Property(e => e.Region)
                     .HasMaxLength(50)
-                    .HasColumnName("REGION");
+                    .HasColumnName("region");
 
                 entity.Property(e => e.Street)
                     .HasMaxLength(50)
-                    .HasColumnName("STREET");
+                    .HasColumnName("street");
 
                 entity.Property(e => e.Zip)
                     .HasMaxLength(50)
-                    .HasColumnName("ZIP");
+                    .HasColumnName("zip");
 
                 entity.HasOne(d => d.Member)
                     .WithMany()
@@ -80,15 +69,25 @@ namespace SecretSanta_Backend
 
                 entity.Property(e => e.Id)
                     .ValueGeneratedNever()
-                    .HasColumnName("ID");
+                    .HasColumnName("id");
 
                 entity.Property(e => e.Description)
                     .HasMaxLength(140)
-                    .HasColumnName("DESCRIPTION");
+                    .HasColumnName("description");
 
-                entity.Property(e => e.Endofevent).HasColumnName("ENDOFEVENT");
+                entity.Property(e => e.EndEvent).HasColumnName("end_event");
 
-                entity.Property(e => e.Endofregistration).HasColumnName("ENDOFREGISTRATION");
+                entity.Property(e => e.EndRegistration).HasColumnName("end_registration");
+
+                entity.Property(e => e.Sandfriends)
+                    .HasColumnName("sandfriends")
+                    .HasDefaultValueSql("false");
+
+                entity.Property(e => e.Sumprice).HasColumnName("sumprice");
+
+                entity.Property(e => e.Tracking)
+                    .HasColumnName("tracking")
+                    .HasDefaultValueSql("false");
             });
 
             modelBuilder.Entity<Member>(entity =>
@@ -97,27 +96,23 @@ namespace SecretSanta_Backend
 
                 entity.Property(e => e.Id)
                     .ValueGeneratedNever()
-                    .HasColumnName("ID");
-
-                entity.Property(e => e.Attend)
-                    .HasColumnName("ATTEND")
-                    .HasDefaultValueSql("true");
+                    .HasColumnName("id");
 
                 entity.Property(e => e.Email)
                     .HasMaxLength(50)
-                    .HasColumnName("EMAIL");
+                    .HasColumnName("email");
 
                 entity.Property(e => e.Name)
                     .HasMaxLength(50)
-                    .HasColumnName("NAME");
+                    .HasColumnName("name");
 
                 entity.Property(e => e.Patronymic)
                     .HasMaxLength(50)
-                    .HasColumnName("PATRONYMIC");
+                    .HasColumnName("patronymic");
 
                 entity.Property(e => e.Surname)
                     .HasMaxLength(50)
-                    .HasColumnName("SURNAME");
+                    .HasColumnName("surname");
             });
 
             modelBuilder.Entity<MemberEvent>(entity =>
@@ -126,9 +121,27 @@ namespace SecretSanta_Backend
 
                 entity.ToTable("Member_Event");
 
-                entity.Property(e => e.EventId).HasColumnName("EVENT_ID");
+                entity.Property(e => e.DeliveryService)
+                    .HasMaxLength(100)
+                    .HasColumnName("delivery_service");
 
-                entity.Property(e => e.MemberId).HasColumnName("MEMBER_ID");
+                entity.Property(e => e.EventId).HasColumnName("event_id");
+
+                entity.Property(e => e.MemberAttend)
+                    .HasColumnName("member_attend")
+                    .HasDefaultValueSql("true");
+
+                entity.Property(e => e.MemberId).HasColumnName("member_id");
+
+                entity.Property(e => e.Preference).HasColumnName("preference");
+
+                entity.Property(e => e.Recipient).HasColumnName("recipient");
+
+                entity.Property(e => e.Sendday).HasColumnName("sendday");
+
+                entity.Property(e => e.TrackNumber)
+                    .HasMaxLength(100)
+                    .HasColumnName("track_number");
 
                 entity.HasOne(d => d.Event)
                     .WithMany()

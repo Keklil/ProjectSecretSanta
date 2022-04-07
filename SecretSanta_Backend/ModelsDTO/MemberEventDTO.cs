@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace SecretSanta_Backend.Models
+namespace SecretSanta_Backend.ModelsDTO
 {
-    public partial class MemberEvent
+    public partial class MemberEventDTO
     {
         public Guid MemberId { get; set; }
         public Guid EventId { get; set; }
@@ -14,7 +14,7 @@ namespace SecretSanta_Backend.Models
         public Guid? Recipient { get; set; }
         public DateTime? Sendday { get; set; }
 
-        public virtual Event Event { get; set; } = null!;
-        public virtual Member Member { get; set; } = null!;
+        public virtual EventDTO Event { get; set; } = null!;
+        public virtual MemberDTO Member { get; set; } = null!;
     }
 }

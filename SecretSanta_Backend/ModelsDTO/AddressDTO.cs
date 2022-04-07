@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace SecretSanta_Backend.Models
+namespace SecretSanta_Backend.ModelsDTO
 {
-    public partial class Address
+    public partial class AddressDTO
     {
         public Guid MemberId { get; set; }
         public string PhoneNumber { get; set; } = null!;
@@ -13,6 +13,6 @@ namespace SecretSanta_Backend.Models
         public string Street { get; set; } = null!;
         public string? Apartment { get; set; }
 
-        public virtual Member Member { get; set; } = null!;
+        public virtual MemberDTO Member { get; set; } = null!;
     }
 }
