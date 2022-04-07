@@ -22,11 +22,11 @@ namespace SecretSanta_Backend.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreateEvent([FromBody]Event model)
+        public IActionResult CreateEvent([FromBody] Event @event)
         {
             try
             {
-                if (model is null)
+                if (@event is null)
                 {
                     _logger.LogError("Event object recived from client is null.");
                     return BadRequest("Null object");
@@ -38,24 +38,24 @@ namespace SecretSanta_Backend.Controllers
                 }
 
                 var eventId = Guid.NewGuid();
-                var @event = new Event
+                var eventResult = new Event
                 {
                     Id = eventId,
-                    Description = model.Description,
-                    EndEvent = model.EndEvent,
-                    EndRegistration = model.EndRegistration
+                    Description = @event.Description,
+                    EndEvent = @event.EndEvent,
+                    EndRegistration = @event.EndRegistration
                 };
 
-                repository.Event.CreateEvent(@event);
+                repository.Event.CreateEvent(eventResult);
                 repository.Save();
 
-                return Ok(@event);
+                return Ok(eventResult);
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Something went wrong inside CreateEvent action: {ex.Message}");
                 return StatusCode(500, "Internal server error");
-            } 
+            }
         }
 
         [HttpDelete("id")]
@@ -70,7 +70,7 @@ namespace SecretSanta_Backend.Controllers
                     return BadRequest("Event not found");
                 }
 
-                repository.Event.Delete(@event);
+                repository.Event.DeleteEvent(@event);
                 repository.Save();
 
                 return NoContent();
@@ -103,6 +103,34 @@ namespace SecretSanta_Backend.Controllers
                 if (ID == Guid.Empty)
                     return BadRequest("Request argument omitted.");
                 return BadRequest("Game with this Id does not exist.");
+            }
+        }
+
+        [HttpPut]
+        public IActionResult UpdateEvent([FromBody]Event @event)
+        {
+            try
+            {
+                if (@event is null)
+                {
+                    _logger.LogError("Event object recived from client is null.");
+                    return BadRequest("Null object");
+                }
+                if (!ModelState.IsValid)
+                {
+                    _logger.LogError("Event object recived from client is not valid.");
+                    return BadRequest("Invalid object");
+                }
+
+                repository.Event.UpdateEvent(@event);
+                repository.Save();
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Incorrectly passed argument: { ex.Message}.");
+                return StatusCode(500, "Internal server error");
             }
         }
     } 
