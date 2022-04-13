@@ -1,6 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Npgsql.EntityFrameworkCore.PostgreSQL;
+using SecretSanta_Backend;
 using SecretSanta_Backend.Configuration;
+using SecretSanta_Backend.Interfaces;
+using SecretSanta_Backend.Repositories;
+using SecretSanta_Backend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,6 +36,8 @@ app.UseDefaultFiles();
 app.UseStaticFiles();
 app.UseRouting();
 
+
+
 app.UseAuthorization();
 
 app.MapControllerRoute(
@@ -39,5 +45,12 @@ app.MapControllerRoute(
     pattern: "{controller}/{action=Index}/{id?}");
 
 app.UseCors("CorsPolicy");
+
+var scope = app.Services.CreateScope();
+var service = scope.ServiceProvider.GetService<IRepositoryWrapper>();
+var b = new MailService(service);
+var d = new Guid("0ff3d625-af85-4015-a808-e310084ad09b");
+await b.sendEmailsWithDesignatedRecipient(d);
+await b.SendEmailsWithDateChanges(d);
 
 app.Run();

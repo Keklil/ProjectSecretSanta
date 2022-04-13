@@ -8,6 +8,8 @@ namespace SecretSanta_Backend.Repositories
         private ApplicationContext context;
         private IMemberRepository member;
         private IEventRepository @event;
+        private IMemberEventRepository memberEvent;
+        private IAddressRepository address;
 
         public IMemberRepository Member
         {
@@ -30,6 +32,30 @@ namespace SecretSanta_Backend.Repositories
                     @event = new EventRepository(context);
                 }
                 return @event;
+            }
+        }
+
+        public IMemberEventRepository MemberEvent
+        {
+            get
+            {
+                if (memberEvent == null)
+                {
+                    memberEvent = new MemberEventRepository(context);
+                }
+                return memberEvent;
+            }
+        }
+
+        public IAddressRepository Address
+        {
+            get
+            {
+                if (address == null)
+                {
+                    address = new AddressRepository(context);
+                }
+                return address;
             }
         }
 
