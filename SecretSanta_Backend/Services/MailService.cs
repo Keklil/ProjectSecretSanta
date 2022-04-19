@@ -10,9 +10,10 @@ namespace SecretSanta_Backend.Services
     {
         private IRepositoryWrapper repository;
 
-        public MailService(IRepositoryWrapper repository)
+        public MailService()
         {
-            this.repository = repository;
+            if (this.repository == null)
+                this.repository = RepositoryTransfer.GetRepository();
         }
 
         private async Task SendMail(MailMessage mailMessage)
@@ -75,7 +76,7 @@ namespace SecretSanta_Backend.Services
                 "{0}" +
                 "И номер телефона для отправки посылки: +7{10}.{0}" +
                 "{0}" +
-                 (recommendedSum is not null ? "Рекомендуемая цена подарка: {11} рублей.{0}" : "") +
+                 (recommendedSum is not null ? "Рекомендуемая стоимость подарка: {11} рублей.{0}" : "") +
                 "Отправьте подарок не позднее, чем {12}.{0}" +
                 "{0}" +
                 "Надеемся вы сможете порадовать своего получателя!", Environment.NewLine, recipient.Surname, recipient.Name, recipient.Patronymic,
@@ -91,6 +92,7 @@ namespace SecretSanta_Backend.Services
             MailMessage message = new MailMessage("secret-santa-test@mail.ru", email);
             message.Subject = "Изменение сроков проведения игры Secret Santa.";
             message.Body = String.Format("Приносим извинения за перенос сроков проведения события.{0}" +
+                "{0}" +
                 "Регистрация и назначение получателя вашего подарка произойдет: {1},{0}" +
                 "Конец события назначен на: {2}", Environment.NewLine, endOfRegistration, EndOfEvent);
             return message;
