@@ -7,7 +7,7 @@ using AutoMapper;
 namespace SecretSanta_Backend.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("[controller]/[action]")]
     public class AdminController : ControllerBase
     {
         private IRepositoryWrapper _repository;
@@ -84,14 +84,14 @@ namespace SecretSanta_Backend.Controllers
 
 
         [HttpGet]
-        public IEnumerable<Event> Get()
+        public IEnumerable<Event> GetEvent()
         {
             return _repository.Event.FindAll().ToArray();
         }
 
 
         [HttpGet("id")]
-        public ActionResult<Event> GetById(Guid ID)
+        public ActionResult<Event> GetEventById(Guid ID)
         {
             try
             {
