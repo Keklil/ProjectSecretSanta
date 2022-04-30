@@ -10,15 +10,15 @@ namespace SecretSanta_Backend.Controllers
     [Route("[controller]")]
     public class AdminController : ControllerBase
     {
-        private IRepositoryWrapper repository;
-        private IMapper mapper;
+        private IRepositoryWrapper _repository;
+        private IMapper _mapper;
         private readonly ILogger<AdminController> _logger;
 
         public AdminController(ILogger<AdminController> logger, IRepositoryWrapper repository, IMapper mapper)
         {
             _logger = logger;
-            this.mapper = mapper;
-            this.repository = repository;
+            _mapper = mapper;
+            _repository = repository;
         }
 
         [HttpPost]
@@ -46,8 +46,8 @@ namespace SecretSanta_Backend.Controllers
                     EndRegistration = @event.EndRegistration
                 };
 
-                repository.Event.CreateEvent(eventResult);
-                repository.Save();
+                _repository.Event.CreateEvent(eventResult);
+                _repository.Save();
 
                 return Ok(eventResult);
             }
@@ -63,15 +63,15 @@ namespace SecretSanta_Backend.Controllers
         {
             try
             {
-                var @event = repository.Event.FindByCondition(x => x.Id == ID).First();
+                var @event = _repository.Event.FindByCondition(x => x.Id == ID).First();
                 if (@event is null)
                 {
                     _logger.LogError($"Event with ID: {ID} not found");
                     return BadRequest("Event not found");
                 }
 
-                repository.Event.DeleteEvent(@event);
-                repository.Save();
+                _repository.Event.DeleteEvent(@event);
+                _repository.Save();
 
                 return NoContent();
             }
@@ -86,7 +86,7 @@ namespace SecretSanta_Backend.Controllers
         [HttpGet]
         public IEnumerable<Event> Get()
         {
-            return repository.Event.FindAll().ToArray();
+            return _repository.Event.FindAll().ToArray();
         }
 
 
@@ -95,7 +95,7 @@ namespace SecretSanta_Backend.Controllers
         {
             try
             {
-                return repository.Event.FindByCondition(x => x.Id == ID).First();
+                return _repository.Event.FindByCondition(x => x.Id == ID).First();
             }
             catch (Exception ex)
             {
@@ -122,8 +122,8 @@ namespace SecretSanta_Backend.Controllers
                     return BadRequest("Invalid object");
                 }
 
-                repository.Event.UpdateEvent(@event);
-                repository.Save();
+                _repository.Event.UpdateEvent(@event);
+                _repository.Save();
 
                 return NoContent();
             }

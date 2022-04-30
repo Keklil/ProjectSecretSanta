@@ -46,8 +46,8 @@ namespace SecretSanta_Backend.Services
 
         private async Task<MailMessage> CreateDesignatedRecipientMessage(string email, Guid eventId, Guid memberId)
         {
-            var recommendedSum = await repository.Event.FindByCondition(x => x.Id == eventId).Select(x => x.Sumprice).SingleAsync();
-            var endOfEvent = await repository.MemberEvent.FindByCondition(x => x.MemberId == memberId).Select(x => x.Sendday).SingleAsync();
+            var recommendedSum = await repository.Event.FindByCondition(x => x.Id == eventId).Select(x => x.SumPrice).SingleAsync();
+            var endOfEvent = await repository.MemberEvent.FindByCondition(x => x.MemberId == memberId).Select(x => x.SendDay).SingleAsync();
             var recipientId = await repository.MemberEvent.FindByCondition(x => x.MemberId == memberId && x.EventId == eventId).Select(x => x.Recipient).SingleAsync();
             var recipient = await repository.Member.FindByCondition(x => x.Id == recipientId).SingleAsync();
             var recipientInEvent = await repository.MemberEvent.FindByCondition(x => x.MemberId == recipientId && x.EventId == eventId).SingleAsync();
