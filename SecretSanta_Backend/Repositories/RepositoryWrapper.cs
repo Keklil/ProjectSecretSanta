@@ -6,10 +6,10 @@ namespace SecretSanta_Backend.Repositories
     public class RepositoryWrapper : IRepositoryWrapper
     {
         private ApplicationContext context;
-        private IMemberRepository member;
-        private IEventRepository @event;
-        private IMemberEventRepository memberEvent;
-        private IAddressRepository address;
+        private IMemberRepository? member;
+        private IEventRepository? @event;
+        private IMemberEventRepository? memberEvent;
+        private IAddressRepository? address;
 
         public IMemberRepository Member
         {

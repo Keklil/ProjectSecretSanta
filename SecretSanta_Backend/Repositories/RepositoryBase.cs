@@ -4,7 +4,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
 using SecretSanta_Backend.Interfaces;
 
 namespace SecretSanta_Backend.Repositories
