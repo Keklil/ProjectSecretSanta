@@ -1,5 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-using Npgsql.EntityFrameworkCore.PostgreSQL;
 using SecretSanta_Backend.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -31,6 +29,8 @@ app.UseHttpsRedirection();
 app.UseDefaultFiles();
 app.UseStaticFiles();
 app.UseRouting();
+
+
 
 app.UseAuthorization();
 
