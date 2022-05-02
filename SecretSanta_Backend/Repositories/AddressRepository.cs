@@ -9,5 +9,10 @@ namespace SecretSanta_Backend.Repositories
         {
 
         }
+
+        public void CreateAddress(Address address) => Create(address);
+        public void UpdateAddress(Address address) => Update(address);
+        public void DeleteAddress(Address address) => Delete(address);
+
     }
 }
