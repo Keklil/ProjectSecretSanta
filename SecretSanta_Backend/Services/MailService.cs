@@ -112,7 +112,6 @@ namespace SecretSanta_Backend.Services
             var members = await repository.Member.FindByCondition(x => memberIds.Contains(x.Id)).ToListAsync();         
             foreach (var member in members)
             {
-                Console.WriteLine(member.Email);
                 var email = member.Email;
                 var memberId = member.Id;
                 var message = await CreateDesignatedRecipientMessage(email, eventId, memberId);
