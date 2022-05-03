@@ -11,7 +11,7 @@ namespace SecretSanta_Backend.Services
     public class MailService
     {
         private IRepositoryWrapper repository;
-        IConfiguration config;
+        private IConfiguration config;
 
         public MailService()
         {
