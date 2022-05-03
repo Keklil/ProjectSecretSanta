@@ -1,6 +1,5 @@
 ﻿using Quartz;
 using Quartz.Impl;
-using SecretSanta_Backend.Interfaces;
 
 namespace SecretSanta_Backend.Jobs
 {
@@ -16,7 +15,8 @@ namespace SecretSanta_Backend.Jobs
 
             ITrigger trigger = TriggerBuilder.Create() 
                 .WithIdentity("trigger1", "group1")   
-                .StartAt(DateBuilder.TodayAt(12, 0, 0))
+                .StartNow()
+                //.StartAt(DateBuilder.TodayAt(12, 0, 0))
                 .WithSimpleSchedule(x => x
                     .WithIntervalInHours(24)
                     .RepeatForever())                  

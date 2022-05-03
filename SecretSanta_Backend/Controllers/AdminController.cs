@@ -1,13 +1,14 @@
-﻿using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using SecretSanta_Backend.Models;
 using SecretSanta_Backend.Interfaces;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace SecretSanta_Backend.Controllers
 {
     [ApiController]
-    [Route("Event")]
+    [Route("[controller]/events")]
+
     public class AdminController : ControllerBase
     {
         private IRepositoryWrapper _repository;
@@ -58,12 +59,14 @@ namespace SecretSanta_Backend.Controllers
             }
         }
 
+
         [HttpDelete("{id}")]
-        public IActionResult DeleteEvent(Guid ID)
+        public async Task<IActionResult> DeleteEvent(Guid ID)
         {
             try
             {
-                var @event = _repository.Event.FindByCondition(x => x.Id == ID).First();
+                var @event = await _repository.Event.FindByCondition(x => x.Id == ID).SingleAsync();
+
                 if (@event is null)
                 {
                     _logger.LogError($"Event with ID: {ID} not found");
@@ -84,18 +87,19 @@ namespace SecretSanta_Backend.Controllers
 
 
         [HttpGet]
-        public IEnumerable<Event> GetEvent()
+        public async Task<IEnumerable<Event>> GetEvent()
         {
-            return _repository.Event.FindAll().ToArray();
+            return await _repository.Event.FindAll().ToListAsync();
         }
 
 
         [HttpGet("{id}")]
-        public ActionResult<Event> GetEventById(Guid ID)
+        public async Task<ActionResult<Event>> GetEventById(Guid ID)
         {
             try
             {
-                return _repository.Event.FindByCondition(x => x.Id == ID).First();
+                return await _repository.Event.FindByCondition(x => x.Id == ID).SingleAsync();
+
             }
             catch (Exception ex)
             {
