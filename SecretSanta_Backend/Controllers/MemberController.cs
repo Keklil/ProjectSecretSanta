@@ -96,7 +96,7 @@ namespace SecretSanta_Backend.Controllers
             }
         }
 
-        [HttpPost("wishes/{id}")]
+        [HttpPost("{id}/wishes")]
         public async Task<IActionResult> SendWishes(Guid memberId,[FromBody] Wishes wishes)
         {
             try
