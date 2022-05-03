@@ -1,4 +1,5 @@
-﻿using SecretSanta_Backend.Interfaces;
+﻿using Microsoft.EntityFrameworkCore;
+using SecretSanta_Backend.Interfaces;
 using SecretSanta_Backend.Models;
 
 namespace SecretSanta_Backend.Repositories
@@ -64,9 +65,19 @@ namespace SecretSanta_Backend.Repositories
             this.context = context;
         }
 
-        public void Save()
+        public RepositoryWrapper()
         {
-            context.SaveChanges();
+            var config = new ConfigurationBuilder()
+                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                .AddJsonFile("appsettings.json").Build();
+            var optionsBuilder = new DbContextOptionsBuilder<ApplicationContext>();
+            optionsBuilder.UseNpgsql(config.GetConnectionString("DefaultConnection"));
+            context = new ApplicationContext(optionsBuilder.Options);
+        }
+
+        public async void Save()
+        {
+            await context.SaveChangesAsync();
         }
     }
 }

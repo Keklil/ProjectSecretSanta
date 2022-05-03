@@ -1,3 +1,5 @@
+using Quartz.Impl;
+using SecretSanta_Backend;
 using SecretSanta_Backend.Configuration;
 using SecretSanta_Backend.Interfaces;
 using SecretSanta_Backend.Jobs;
@@ -35,6 +37,7 @@ app.UseRouting();
 
 
 
+
 app.UseAuthorization();
 
 app.MapControllerRoute(
@@ -43,24 +46,8 @@ app.MapControllerRoute(
 
 app.UseCors("CorsPolicy");
 
-var scope = app.Services.CreateScope();
-var repository = scope.ServiceProvider.GetService<IRepositoryWrapper>();
-RepositoryTransfer.SetRepository(repository);
+
 EventNotificationScheduler.Start();
 
+
 app.Run();
-
-public static class RepositoryTransfer
-{
-    public static IRepositoryWrapper repository;
-
-    public static void SetRepository(IRepositoryWrapper repository)
-    {
-        RepositoryTransfer.repository = repository;
-    }
-
-    public static IRepositoryWrapper GetRepository()
-    {
-        return repository;
-    }
-}
