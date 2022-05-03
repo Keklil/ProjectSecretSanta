@@ -7,7 +7,7 @@ using AutoMapper;
 namespace SecretSanta_Backend.Controllers
 {
     [ApiController]
-    [Route("[controller]/[action]")]
+    [Route("Event")]
     public class AdminController : ControllerBase
     {
         private IRepositoryWrapper _repository;
@@ -58,7 +58,7 @@ namespace SecretSanta_Backend.Controllers
             }
         }
 
-        [HttpDelete("id")]
+        [HttpDelete("{id}")]
         public IActionResult DeleteEvent(Guid ID)
         {
             try
@@ -90,7 +90,7 @@ namespace SecretSanta_Backend.Controllers
         }
 
 
-        [HttpGet("id")]
+        [HttpGet("{id}")]
         public ActionResult<Event> GetEventById(Guid ID)
         {
             try

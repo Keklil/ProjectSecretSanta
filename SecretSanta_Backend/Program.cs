@@ -9,7 +9,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.ConfigureCors();
-builder.Services.AddAuthentication("Cookies").AddCookie();
 builder.Services.ConfigurePostgreSqlContext(builder.Configuration);
 builder.Services.ConfigureRepositoryWrapper();
 builder.Services.ConfigureIISIntegration();

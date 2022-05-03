@@ -8,7 +8,7 @@ using AutoMapper;
 namespace SecretSanta_Backend.Controllers
 {
     [ApiController]
-    [Route("[controller]/[action]")]
+    [Route("[controller]")]
     public class MemberController : ControllerBase
     {
         private readonly IMapper _mapper;
@@ -56,7 +56,7 @@ namespace SecretSanta_Backend.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpGet("login")]
         public async Task<IActionResult> MemberLogin([FromBody] string email, string password)
         {
             try
@@ -96,7 +96,7 @@ namespace SecretSanta_Backend.Controllers
             }
         }
 
-        [HttpPost]
+        [HttpPost("wishes/{id}")]
         public async Task<IActionResult> SendWishes(Guid memberId,[FromBody] Wishes wishes)
         {
             try
@@ -150,7 +150,7 @@ namespace SecretSanta_Backend.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpGet("{id}/events")]
         public async Task<IActionResult> GetEventsList(Guid memberId)
         {
             try
@@ -174,7 +174,7 @@ namespace SecretSanta_Backend.Controllers
             }
         }
 
-        [HttpGet]
+        [HttpGet("event/{id}")]
         public async Task<IActionResult> GetEventInfo(Guid eventId)
         {
             var @event = _repository.Event.FindByCondition(x => x.Id == eventId).First();
