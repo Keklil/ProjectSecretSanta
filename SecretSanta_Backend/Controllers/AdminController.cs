@@ -8,6 +8,7 @@ namespace SecretSanta_Backend.Controllers
 {
     [ApiController]
     [Route("[controller]/events")]
+
     public class AdminController : ControllerBase
     {
         private IRepositoryWrapper _repository;
@@ -64,6 +65,7 @@ namespace SecretSanta_Backend.Controllers
             try
             {
                 var @event = await _repository.Event.FindByCondition(x => x.Id == ID).SingleAsync();
+
                 if (@event is null)
                 {
                     _logger.LogError($"Event with ID: {ID} not found");
@@ -96,6 +98,7 @@ namespace SecretSanta_Backend.Controllers
             try
             {
                 return await _repository.Event.FindByCondition(x => x.Id == ID).SingleAsync();
+
             }
             catch (Exception ex)
             {
