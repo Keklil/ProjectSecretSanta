@@ -59,7 +59,8 @@ namespace SecretSanta_Backend.Controllers
             }
         }
 
-        [HttpDelete("{ID}")]
+
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteEvent(Guid ID)
         {
             try
@@ -92,7 +93,7 @@ namespace SecretSanta_Backend.Controllers
         }
 
 
-        [HttpGet("{ID}")]
+        [HttpGet("{id}")]
         public async Task<ActionResult<Event>> GetEventById(Guid ID)
         {
             try
