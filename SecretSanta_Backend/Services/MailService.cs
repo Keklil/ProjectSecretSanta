@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using SecretSanta_Backend.Interfaces;
+using SecretSanta_Backend.Repositories;
 using System.Net;
 using System.Net.Mail;
 
@@ -9,11 +11,14 @@ namespace SecretSanta_Backend.Services
     public class MailService
     {
         private IRepositoryWrapper repository;
+        IConfiguration config;
 
         public MailService()
         {
-            if (this.repository == null)
-                this.repository = RepositoryTransfer.GetRepository();
+            config = new ConfigurationBuilder()
+                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                .AddJsonFile("appsettings.json").Build();
+            repository = new RepositoryWrapper();
         }
 
         private async Task SendMail(MailMessage mailMessage)
@@ -37,17 +42,18 @@ namespace SecretSanta_Backend.Services
         
         private SmtpClient InitializeSmtpClient() => new SmtpClient
         {
-            EnableSsl = true,
-            Host = "smtp.mail.ru",
-            Port = 25,
-            Credentials = new NetworkCredential("secret-santa-test@mail.ru", "Tj2gBCNRZT8KcnVUSpVv")
+            EnableSsl = config.GetValue<bool>("EmailSettings:EnableSsl"),
+            Host = config.GetValue<string>("EmailSettings:Host"),
+            Port = config.GetValue<int>("EmailSettings:Port"),
+            Credentials = new NetworkCredential(config.GetValue<string>("EmailSettings:From"),
+            config.GetValue<string>("EmailSettings:Password"))
         };
 
 
         private async Task<MailMessage> CreateDesignatedRecipientMessage(string email, Guid eventId, Guid memberId)
         {
-            var recommendedSum = await repository.Event.FindByCondition(x => x.Id == eventId).Select(x => x.Sumprice).SingleAsync();
-            var endOfEvent = await repository.MemberEvent.FindByCondition(x => x.MemberId == memberId).Select(x => x.Sendday).SingleAsync();
+            var recommendedSum = await repository.Event.FindByCondition(x => x.Id == eventId).Select(x => x.SumPrice).SingleAsync();
+            var endOfEvent = await repository.MemberEvent.FindByCondition(x => x.MemberId == memberId).Select(x => x.SendDay).SingleAsync();
             var recipientId = await repository.MemberEvent.FindByCondition(x => x.MemberId == memberId && x.EventId == eventId).Select(x => x.Recipient).SingleAsync();
             var recipient = await repository.Member.FindByCondition(x => x.Id == recipientId).SingleAsync();
             var recipientInEvent = await repository.MemberEvent.FindByCondition(x => x.MemberId == recipientId && x.EventId == eventId).SingleAsync();
@@ -100,12 +106,13 @@ namespace SecretSanta_Backend.Services
 
 
         public async Task sendEmailsWithDesignatedRecipient(Guid eventId)
-        {         
+        {
             var memberIds = await repository.MemberEvent
                 .FindByCondition(x => x.EventId == eventId && x.MemberAttend == true).Select(x => x.MemberId).ToListAsync();
-            var members = await repository.Member.FindByCondition(x => memberIds.Contains(x.Id)).ToListAsync();
+            var members = await repository.Member.FindByCondition(x => memberIds.Contains(x.Id)).ToListAsync();         
             foreach (var member in members)
             {
+                Console.WriteLine(member.Email);
                 var email = member.Email;
                 var memberId = member.Id;
                 var message = await CreateDesignatedRecipientMessage(email, eventId, memberId);

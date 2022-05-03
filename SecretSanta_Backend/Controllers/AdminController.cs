@@ -1,32 +1,32 @@
-﻿using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using SecretSanta_Backend.Models;
 using SecretSanta_Backend.Interfaces;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace SecretSanta_Backend.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("[controller]/events")]
     public class AdminController : ControllerBase
     {
-        private IRepositoryWrapper repository;
-        private IMapper mapper;
+        private IRepositoryWrapper _repository;
+        private IMapper _mapper;
         private readonly ILogger<AdminController> _logger;
 
         public AdminController(ILogger<AdminController> logger, IRepositoryWrapper repository, IMapper mapper)
         {
             _logger = logger;
-            this.mapper = mapper;
-            this.repository = repository;
+            _mapper = mapper;
+            _repository = repository;
         }
 
         [HttpPost]
-        public IActionResult CreateEvent([FromBody]Event model)
+        public IActionResult CreateEvent([FromBody] Event @event)
         {
             try
             {
-                if (model is null)
+                if (@event is null)
                 {
                     _logger.LogError("Event object recived from client is null.");
                     return BadRequest("Null object");
@@ -38,40 +38,40 @@ namespace SecretSanta_Backend.Controllers
                 }
 
                 var eventId = Guid.NewGuid();
-                var @event = new Event
+                var eventResult = new Event
                 {
                     Id = eventId,
-                    Description = model.Description,
-                    EndEvent = model.EndEvent,
-                    EndRegistration = model.EndRegistration
+                    Description = @event.Description,
+                    EndEvent = @event.EndEvent,
+                    EndRegistration = @event.EndRegistration
                 };
 
-                repository.Event.CreateEvent(@event);
-                repository.Save();
+                _repository.Event.CreateEvent(eventResult);
+                _repository.Save();
 
-                return Ok(@event);
+                return Ok(eventResult);
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Something went wrong inside CreateEvent action: {ex.Message}");
                 return StatusCode(500, "Internal server error");
-            } 
+            }
         }
 
-        [HttpDelete("id")]
-        public IActionResult DeleteEvent(Guid ID)
+        [HttpDelete("{ID}")]
+        public async Task<IActionResult> DeleteEvent(Guid ID)
         {
             try
             {
-                var @event = repository.Event.FindByCondition(x => x.Id == ID).First();
+                var @event = await _repository.Event.FindByCondition(x => x.Id == ID).SingleAsync();
                 if (@event is null)
                 {
                     _logger.LogError($"Event with ID: {ID} not found");
                     return BadRequest("Event not found");
                 }
 
-                repository.Event.Delete(@event);
-                repository.Save();
+                _repository.Event.DeleteEvent(@event);
+                _repository.Save();
 
                 return NoContent();
             }
@@ -84,18 +84,18 @@ namespace SecretSanta_Backend.Controllers
 
 
         [HttpGet]
-        public IEnumerable<Event> Get()
+        public async Task<IEnumerable<Event>> GetEvent()
         {
-            return repository.Event.FindAll().ToArray();
+            return await _repository.Event.FindAll().ToListAsync();
         }
 
 
-        [HttpGet("id")]
-        public ActionResult<Event> GetById(Guid ID)
+        [HttpGet("{ID}")]
+        public async Task<ActionResult<Event>> GetEventById(Guid ID)
         {
             try
             {
-                return repository.Event.FindByCondition(x => x.Id == ID).First();
+                return await _repository.Event.FindByCondition(x => x.Id == ID).SingleAsync();
             }
             catch (Exception ex)
             {
@@ -103,6 +103,34 @@ namespace SecretSanta_Backend.Controllers
                 if (ID == Guid.Empty)
                     return BadRequest("Request argument omitted.");
                 return BadRequest("Game with this Id does not exist.");
+            }
+        }
+
+        [HttpPut]
+        public IActionResult UpdateEvent([FromBody]Event @event)
+        {
+            try
+            {
+                if (@event is null)
+                {
+                    _logger.LogError("Event object recived from client is null.");
+                    return BadRequest("Null object");
+                }
+                if (!ModelState.IsValid)
+                {
+                    _logger.LogError("Event object recived from client is not valid.");
+                    return BadRequest("Invalid object");
+                }
+
+                _repository.Event.UpdateEvent(@event);
+                _repository.Save();
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Incorrectly passed argument: { ex.Message}.");
+                return StatusCode(500, "Internal server error");
             }
         }
     } 

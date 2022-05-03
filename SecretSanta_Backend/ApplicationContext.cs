@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
+﻿using Microsoft.EntityFrameworkCore;
 using SecretSanta_Backend.Models;
 
 namespace SecretSanta_Backend
@@ -79,11 +76,15 @@ namespace SecretSanta_Backend
 
                 entity.Property(e => e.EndRegistration).HasColumnName("end_registration");
 
-                entity.Property(e => e.Sandfriends)
-                    .HasColumnName("sandfriends")
+                entity.Property(e => e.Reshuffle)
+                    .HasColumnName("reshuffle")
                     .HasDefaultValueSql("false");
 
-                entity.Property(e => e.Sumprice).HasColumnName("sumprice");
+                entity.Property(e => e.SendFriends)
+                    .HasColumnName("send_friends")
+                    .HasDefaultValueSql("false");
+
+                entity.Property(e => e.SumPrice).HasColumnName("sum_price");
 
                 entity.Property(e => e.Tracking)
                     .HasColumnName("tracking")
@@ -137,7 +138,7 @@ namespace SecretSanta_Backend
 
                 entity.Property(e => e.Recipient).HasColumnName("recipient");
 
-                entity.Property(e => e.Sendday).HasColumnName("sendday");
+                entity.Property(e => e.SendDay).HasColumnName("send_day");
 
                 entity.Property(e => e.TrackNumber)
                     .HasMaxLength(100)
