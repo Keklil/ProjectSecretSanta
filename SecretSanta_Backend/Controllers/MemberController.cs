@@ -4,6 +4,7 @@ using SecretSanta_Backend.Models;
 using SecretSanta_Backend.ModelsDTO;
 using SecretSanta_Backend.Interfaces;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace SecretSanta_Backend.Controllers
 {
@@ -173,12 +174,60 @@ namespace SecretSanta_Backend.Controllers
                 return StatusCode(500, "Internal server error");
             }
         }
-
-        [HttpGet("event/{id}")]
-        public async Task<IActionResult> GetEventInfo(Guid eventId)
+        //TODO: main page get method
+        [HttpGet("{id}/main")]
+        public async Task<IActionResult> Get(Guid memberId)
         {
-            var @event = _repository.Event.FindByCondition(x => x.Id == eventId).First();
-            return Ok(@event);
+            try
+            {
+                //Member member = await _repository.Member.GetMemberByIdAsync(memberId);
+
+                var events = _repository.Event.GetEventsByMemberId(memberId);
+
+                if (events == null)
+                {
+                    _logger.LogError("Member is not take part one more event");
+                    return BadRequest("Events null");
+                }
+
+                return Ok(events);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Something went wrong inside GetEventsList action: {ex.Message}");
+                return StatusCode(500, "Internal server error");
+            }
         }
+
+        [HttpGet("/{id}/event/{eventId}")]
+        public async Task<IActionResult> GetEventInfo(Guid id, Guid eventId)
+        {
+            var @event = await _repository.Event.FindByCondition(x => x.Id == eventId).SingleAsync();
+            var eventPreferences = await _repository.MemberEvent.FindByCondition(x => x.MemberId == id && x.EventId == eventId).SingleAsync();
+            var memberAttendCount = _repository.MemberEvent.FindByCondition(x => x.MemberId == id).Count();
+
+            UserEventView view = new UserEventView
+            {
+                Description = @event.Description,
+                EndRegistration = @event.EndRegistration,
+                EndEvent = @event.EndEvent,
+                SumPrice = @event.SumPrice,
+                UsersCount = memberAttendCount
+            };
+
+            return Ok(view);
+        }
+
+        [HttpPut("exit")]
+        public async Task<IActionResult> MemberLeaveEvent([FromBody] Guid memberId, Guid eventId)
+        {
+            var member = _repository.MemberEvent.FindByCondition(x => x.MemberId == memberId && x.EventId == eventId).First();
+            member.MemberAttend = false;
+            _repository.MemberEvent.Update(member);
+            await _repository.SaveAsync();
+
+            return NoContent();
+        }
+
     }
 }
