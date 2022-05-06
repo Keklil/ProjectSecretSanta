@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using SecretSanta_Backend.Models;
 using SecretSanta_Backend.ModelsDTO;
@@ -97,6 +98,29 @@ namespace SecretSanta_Backend.Controllers
             }
         }
 
+        [HttpGet("{id}/wishes/{eventId}")]
+        public async Task<IActionResult> GetWishes(Guid memberId, Guid eventId)
+        {
+            try
+            {
+                Member member = await _repository.Member.GetMemberByIdAsync(memberId);
+                Address address = await _repository.Address.FindByCondition(x => x.MemberId == memberId).FirstAsync();
+                MemberEvent memberEvent = await _repository.MemberEvent.FindByCondition(x => x.MemberId == memberId && x.EventId == eventId).FirstAsync();
+
+                Wishes wishes = new Wishes
+                {
+                    Name = member.Surname + " " + member.Name + " " + member.Patronymic,
+                };
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Something went wrong inside GetWishes action: {ex.Message}");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
         [HttpPost("{id}/wishes")]
         public async Task<IActionResult> SendWishes(Guid memberId,[FromBody] Wishes wishes)
         {
@@ -112,8 +136,6 @@ namespace SecretSanta_Backend.Controllers
                     _logger.LogError("Wishes object recived from client is not valid.");
                     return BadRequest("Invalid object");
                 }
-
-                // TODO: cookies get ids method ->
 
                 Member member = await _repository.Member.GetMemberByIdAsync(memberId);
 
