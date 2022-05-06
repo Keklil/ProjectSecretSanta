@@ -77,7 +77,7 @@ namespace SecretSanta_Backend.Controllers
                 var member = await _repository.Member.GetMemberByEmailAsync(email);
                 if (member == null)
                 {
-                    _logger.LogInformation("Member recived from client is nor found.");
+                    _logger.LogInformation("Member recived from client is not found.");
                     // TODO:  Auth method to LDAP
                     // check user in LDAP-DB, if exist add email to appDB, if not - auth error
                 }
@@ -110,9 +110,16 @@ namespace SecretSanta_Backend.Controllers
                 Wishes wishes = new Wishes
                 {
                     Name = member.Surname + " " + member.Name + " " + member.Patronymic,
+                    PhoneNumber = address.PhoneNumber,
+                    Zip = address.Zip,
+                    Region = address.Region,
+                    City = address.City,
+                    Street = address.Street,
+                    Apartment = address.Apartment,
+                    Wish = memberEvent.Preference
                 };
 
-                return Ok();
+                return Ok(wishes);
             }
             catch (Exception ex)
             {
@@ -169,54 +176,6 @@ namespace SecretSanta_Backend.Controllers
             catch (Exception ex)
             {
                 _logger.LogError($"Something went wrong inside SendWishes action: {ex.Message}");
-                return StatusCode(500, "Internal server error");
-            }
-        }
-
-        [HttpGet("{id}/events")]
-        public async Task<IActionResult> GetEventsList(Guid memberId)
-        {
-            try
-            { 
-                //Member member = await _repository.Member.GetMemberByIdAsync(memberId);
-
-                var events = _repository.Event.GetEventsByMemberId(memberId);
-
-                if (events == null)
-                {
-                    _logger.LogError("Member is not take part one more event");
-                    return BadRequest("Events null");
-                }
-
-                return Ok(events);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Something went wrong inside GetEventsList action: {ex.Message}");
-                return StatusCode(500, "Internal server error");
-            }
-        }
-        //TODO: main page get method
-        [HttpGet("{id}/main")]
-        public async Task<IActionResult> Get(Guid memberId)
-        {
-            try
-            {
-                //Member member = await _repository.Member.GetMemberByIdAsync(memberId);
-
-                var events = _repository.Event.GetEventsByMemberId(memberId);
-
-                if (events == null)
-                {
-                    _logger.LogError("Member is not take part one more event");
-                    return BadRequest("Events null");
-                }
-
-                return Ok(events);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Something went wrong inside GetEventsList action: {ex.Message}");
                 return StatusCode(500, "Internal server error");
             }
         }

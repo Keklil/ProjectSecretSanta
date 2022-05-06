@@ -87,7 +87,7 @@ namespace SecretSanta_Backend.Controllers
 
 
         [HttpGet]
-        public async Task<IEnumerable<Event>> GetEvent()
+        public async Task<IEnumerable<Event>> GetEvents()
         {
             return await _repository.Event.FindAll().ToListAsync();
         }
@@ -134,6 +134,52 @@ namespace SecretSanta_Backend.Controllers
             catch (Exception ex)
             {
                 _logger.LogError($"Incorrectly passed argument: { ex.Message}.");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpGet("events")]
+        public async Task<IActionResult> GetEvents(Guid memberId)
+        {
+            try
+            {
+                //Member member = await _repository.Member.GetMemberByIdAsync(memberId);
+
+                var events = _repository.Event.GetEventsByMemberId(memberId);
+
+                if (events == null)
+                {
+                    _logger.LogError("Member is not take part one more event");
+                    return BadRequest("Events null");
+                }
+
+                return Ok(events);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Something went wrong inside GetEventsList action: {ex.Message}");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
+        [HttpGet("events/{memberId}")]
+        public async Task<IActionResult> GetEventsByMember(Guid memberId)
+        {
+            try
+            {
+                var events = _repository.Event.GetEventsByMemberId(memberId);
+
+                if (events == null)
+                {
+                    _logger.LogError("Member is not take part one more event");
+                    return BadRequest("Events null");
+                }
+
+                return Ok(events);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Something went wrong inside GetEventsList action: {ex.Message}");
                 return StatusCode(500, "Internal server error");
             }
         }
