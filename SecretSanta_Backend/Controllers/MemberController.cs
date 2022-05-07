@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 namespace SecretSanta_Backend.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("member")]
     public class MemberController : ControllerBase
     {
         private readonly IMapper _mapper;
@@ -128,8 +128,8 @@ namespace SecretSanta_Backend.Controllers
             }
         }
 
-        [HttpPost("{id}/wishes")]
-        public async Task<IActionResult> SendWishes(Guid memberId,[FromBody] Wishes wishes)
+        [HttpPost("{id}/wishes/{eventId}")]
+        public async Task<IActionResult> SendWishes(Guid memberId, Guid eventId, [FromBody] Wishes wishes)
         {
             try
             {
@@ -180,35 +180,95 @@ namespace SecretSanta_Backend.Controllers
             }
         }
 
-        [HttpGet("/{id}/event/{eventId}")]
+        [HttpGet("{id}/event/{eventId}")]
         public async Task<IActionResult> GetEventInfo(Guid id, Guid eventId)
         {
-            var @event = await _repository.Event.FindByCondition(x => x.Id == eventId).SingleAsync();
-            var eventPreferences = await _repository.MemberEvent.FindByCondition(x => x.MemberId == id && x.EventId == eventId).SingleAsync();
-            var memberAttendCount = _repository.MemberEvent.FindByCondition(x => x.MemberId == id).Count();
-
-            UserEventView view = new UserEventView
+            try
             {
-                Description = @event.Description,
-                EndRegistration = @event.EndRegistration,
-                EndEvent = @event.EndEvent,
-                SumPrice = @event.SumPrice,
-                UsersCount = memberAttendCount
-            };
+                var @event = await _repository.Event.FindByCondition(x => x.Id == eventId).SingleAsync();
+                var eventPreferences = await _repository.MemberEvent.FindByCondition(x => x.MemberId == id && x.EventId == eventId).SingleAsync();
+                var memberAttendCount = _repository.MemberEvent.FindByCondition(x => x.MemberId == id).Count();
 
-            return Ok(view);
+                UserEventView view = new UserEventView
+                {
+                    Description = @event.Description,
+                    EndRegistration = @event.EndRegistration,
+                    EndEvent = @event.EndEvent,
+                    SumPrice = @event.SumPrice,
+                    UsersCount = memberAttendCount
+                };
+
+                return Ok(view);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Something went wrong inside GetEventInfo action: {ex.Message}");
+                return StatusCode(500, "Internal server error");
+            }
         }
 
-        [HttpPut("exit")]
-        public async Task<IActionResult> MemberLeaveEvent([FromBody] Guid memberId, Guid eventId)
+        [HttpPut("{id}/exit/{eventId}")]
+        public async Task<IActionResult> MemberLeaveEvent(Guid memberId, Guid eventId)
         {
-            var member = _repository.MemberEvent.FindByCondition(x => x.MemberId == memberId && x.EventId == eventId).First();
-            member.MemberAttend = false;
-            _repository.MemberEvent.Update(member);
-            await _repository.SaveAsync();
+            try
+            {
+                var member = _repository.MemberEvent.FindByCondition(x => x.MemberId == memberId && x.EventId == eventId).First();
+                member.MemberAttend = false;
+                _repository.MemberEvent.Update(member);
+                await _repository.SaveAsync();
 
-            return NoContent();
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Something went wrong inside MemberLeaveEvent action: {ex.Message}");
+                return StatusCode(500, "Internal server error");
+            }
         }
 
+        [HttpGet("{id}/event/{eventId}/gift")]
+        public async Task<IActionResult> GetPlaceOfDelivery(Guid memberId, Guid eventId)
+        {
+            try
+            {
+                var recipientId = await _repository.MemberEvent.FindByCondition(x => x.MemberId == memberId && x.EventId == eventId).Select(x => x.Recipient).SingleAsync();
+                
+                if (recipientId is null)
+                {
+                    _logger.LogError("Mamber object has not recipient Id.");
+                    return BadRequest("No recipient Id");
+                }
+                else
+                {
+                    Member recipient = await _repository.Member.GetMemberByIdAsync((Guid)recipientId);
+                    var preferences = await _repository.MemberEvent.FindByCondition(x => x.MemberId == recipientId && x.EventId == eventId).Select(x => x.Preference).SingleAsync(); ;
+                    Address recipientAddress = await _repository.Address.FindByCondition(x => recipientId == memberId).SingleAsync();
+                    
+                    if (recipientAddress.Apartment is null)
+                    {
+                        GiftFromMe giftFromMe = new GiftFromMe
+                        {
+                            Preferences = preferences,
+                            Address = recipientAddress.Zip + ", " + recipientAddress.Region + ", " + recipientAddress.City + ", " + recipientAddress.Street + ", тел. " + recipientAddress.PhoneNumber
+                        };
+                        return Ok(giftFromMe);
+                    }
+                    else
+                    {
+                        GiftFromMe giftFromMe = new GiftFromMe
+                        {
+                            Preferences = preferences,
+                            Address = recipientAddress.Zip + ", " + recipientAddress.Region + ", " + recipientAddress.City + ", " + recipientAddress.Street + ", кв. " + recipientAddress.Apartment + ", тел. " + recipientAddress.PhoneNumber
+                        };
+                        return Ok(giftFromMe);
+                    }
+                }               
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Something went wrong inside GetPlaceOfDelivery action: {ex.Message}");
+                return StatusCode(500, "Internal server error");
+            }
+        }
     }
 }

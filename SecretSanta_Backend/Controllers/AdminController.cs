@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SecretSanta_Backend.Models;
+using SecretSanta_Backend.ModelsDTO;
 using SecretSanta_Backend.Interfaces;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
@@ -7,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 namespace SecretSanta_Backend.Controllers
 {
     [ApiController]
-    [Route("[controller]/events")]
+    [Route("event")]
 
     public class AdminController : ControllerBase
     {
@@ -23,7 +24,7 @@ namespace SecretSanta_Backend.Controllers
         }
 
         [HttpPost]
-        public IActionResult CreateEvent([FromBody] Event @event)
+        public async Task<IActionResult> CreateEvent([FromBody] EventCreate @event)
         {
             try
             {
@@ -44,11 +45,14 @@ namespace SecretSanta_Backend.Controllers
                     Id = eventId,
                     Description = @event.Description,
                     EndEvent = @event.EndEvent,
-                    EndRegistration = @event.EndRegistration
+                    EndRegistration = @event.EndRegistration,
+                    SumPrice = @event.Sumprice,
+                    SendFriends = @event.Sendfriends,
+                    Tracking = @event.Tracking
                 };
 
                 _repository.Event.CreateEvent(eventResult);
-                _repository.Save();
+                await _repository.SaveAsync();
 
                 return Ok(eventResult);
             }
@@ -74,7 +78,7 @@ namespace SecretSanta_Backend.Controllers
                 }
 
                 _repository.Event.DeleteEvent(@event);
-                _repository.Save();
+                await _repository.SaveAsync();
 
                 return NoContent();
             }
@@ -86,7 +90,7 @@ namespace SecretSanta_Backend.Controllers
         }
 
 
-        [HttpGet]
+        [HttpGet("events")]
         public async Task<IEnumerable<Event>> GetEvents()
         {
             return await _repository.Event.FindAll().ToListAsync();
@@ -134,30 +138,6 @@ namespace SecretSanta_Backend.Controllers
             catch (Exception ex)
             {
                 _logger.LogError($"Incorrectly passed argument: { ex.Message}.");
-                return StatusCode(500, "Internal server error");
-            }
-        }
-
-        [HttpGet("events")]
-        public async Task<IActionResult> GetEvents(Guid memberId)
-        {
-            try
-            {
-                //Member member = await _repository.Member.GetMemberByIdAsync(memberId);
-
-                var events = _repository.Event.GetEventsByMemberId(memberId);
-
-                if (events == null)
-                {
-                    _logger.LogError("Member is not take part one more event");
-                    return BadRequest("Events null");
-                }
-
-                return Ok(events);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Something went wrong inside GetEventsList action: {ex.Message}");
                 return StatusCode(500, "Internal server error");
             }
         }
