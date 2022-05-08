@@ -59,33 +59,33 @@ namespace SecretSanta_Backend.Controllers
         }
 
         [HttpGet("login")]
-        public async Task<IActionResult> MemberLogin([FromBody] string email, string password)
+        public async Task<IActionResult> MemberLogin(MemberLogin login)
         {
             try
             {
-                if (email == null)
+                if (login.Email == null)
                 {
                     _logger.LogError("Member email recived from client is null.");
                     return BadRequest("Null email");
                 }
-                if (password == null)
+                if (login.Password == null)
                 {
                     _logger.LogError("Member password recived from client is null.");
                     return BadRequest("Null password");
                 }
 
-                var member = await _repository.Member.GetMemberByEmailAsync(email);
+                var member = await _repository.Member.GetMemberByEmailAsync(login.Email);
                 if (member == null)
                 {
-                    _logger.LogInformation("Member recived from client is not found.");
+                    _logger.LogInformation("Member recived from client is new.");
                     // TODO:  Auth method to LDAP
                     // check user in LDAP-DB, if exist add email to appDB, if not - auth error
                 }
 
                 var memberLogin = new MemberLogin
                 {
-                    Email = email,
-                    Password = password
+                    Email = login.Email,
+                    Password = login.Password
                 };
 
                 // TODO: Auth method here ->
