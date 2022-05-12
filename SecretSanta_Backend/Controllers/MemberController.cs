@@ -24,40 +24,6 @@ namespace SecretSanta_Backend.Controllers
             _logger = logger;
         }
 
-        [HttpPost]
-        public IActionResult CreateMember([FromBody] Member member)
-        {
-            try
-            {
-                if (member is null)
-                {
-                    _logger.LogError("Member object recived from client is null.");
-                    return BadRequest("Null object");
-                }
-                if (!ModelState.IsValid)
-                {
-                    _logger.LogError("Member object recived from client is not valid.");
-                    return BadRequest("Invalid object");
-                }
-
-                var memberId = Guid.NewGuid();
-                var memberResult = new Member
-                {
-                    Id = memberId
-                };
-
-                _repository.Member.CreateMember(memberResult);
-                _repository.Save();
-
-                return Ok(memberResult);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Something went wrong inside CreateMember action: {ex.Message}");
-                return StatusCode(500, "Internal server error");
-            }
-        }
-
         [HttpGet("login")]
         public async Task<IActionResult> MemberLogin(MemberLogin login)
         {
@@ -98,7 +64,7 @@ namespace SecretSanta_Backend.Controllers
             }
         }
 
-        [HttpGet("{id}/wishes/{eventId}")]
+        [HttpGet("{memberId}/wishes/{eventId}")]
         public async Task<IActionResult> GetWishes(Guid memberId, Guid eventId)
         {
             try
@@ -128,7 +94,7 @@ namespace SecretSanta_Backend.Controllers
             }
         }
 
-        [HttpPost("{id}/wishes/{eventId}")]
+        [HttpPost("{memberId}/wishes/{eventId}")]
         public async Task<IActionResult> SendWishes(Guid memberId, Guid eventId, [FromBody] Wishes wishes)
         {
             try
@@ -180,7 +146,7 @@ namespace SecretSanta_Backend.Controllers
             }
         }
 
-        [HttpPut("{id}/wishes/{eventId}")]
+        [HttpPut("{memberId}/wishes/{eventId}")]
         public async Task<IActionResult> UpdateWishes(Guid memberId, Guid eventId, [FromBody] Wishes wishes)
         {
             try
@@ -227,14 +193,14 @@ namespace SecretSanta_Backend.Controllers
             }
         }
 
-        [HttpGet("{id}/event/{eventId}")]
-        public async Task<IActionResult> GetEventInfo(Guid id, Guid eventId)
+        [HttpGet("{memberId}/event/{eventId}")]
+        public async Task<IActionResult> GetEventInfo(Guid memberId, Guid eventId)
         {
             try
             {
                 var @event = await _repository.Event.FindByCondition(x => x.Id == eventId).SingleAsync();
-                var eventPreferences = await _repository.MemberEvent.FindByCondition(x => x.MemberId == id && x.EventId == eventId).SingleAsync();
-                var memberAttendCount = _repository.MemberEvent.FindByCondition(x => x.MemberId == id).Count();
+                var eventPreferences = await _repository.MemberEvent.FindByCondition(x => x.MemberId == memberId && x.EventId == eventId).SingleAsync();
+                var memberAttendCount = _repository.MemberEvent.FindByCondition(x => x.MemberId == memberId).Count();
 
                 UserEventView view = new UserEventView
                 {
@@ -254,7 +220,7 @@ namespace SecretSanta_Backend.Controllers
             }
         }
 
-        [HttpPut("{id}/exit/{eventId}")]
+        [HttpPut("{memberId}/exit/{eventId}")]
         public async Task<IActionResult> MemberLeaveEvent(Guid memberId, Guid eventId)
         {
             try
@@ -273,7 +239,7 @@ namespace SecretSanta_Backend.Controllers
             }
         }
 
-        [HttpGet("{id}/event/{eventId}/gift")]
+        [HttpGet("{memberId}/event/{eventId}/gift")]
         public async Task<IActionResult> GetPlaceOfDelivery(Guid memberId, Guid eventId)
         {
             try
