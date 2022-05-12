@@ -115,7 +115,7 @@ namespace SecretSanta_Backend.Controllers
         }
 
         [HttpPut]
-        public IActionResult UpdateEvent([FromBody]Event @event)
+        public async Task<IActionResult> UpdateEvent([FromBody]Event @event)
         {
             try
             {
@@ -131,7 +131,7 @@ namespace SecretSanta_Backend.Controllers
                 }
 
                 _repository.Event.UpdateEvent(@event);
-                _repository.Save();
+                await _repository.SaveAsync();
 
                 return NoContent();
             }
