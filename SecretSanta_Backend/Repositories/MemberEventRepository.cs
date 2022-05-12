@@ -9,5 +9,10 @@ namespace SecretSanta_Backend.Repositories
         {
 
         }
+
+        public void CreateMemberEvent(MemberEvent memberEvent) => Create(memberEvent);
+        public void UpdateMemberEvent(MemberEvent memberEvent) => Update(memberEvent);
+        public void DeleteMemberEvent(MemberEvent memberEvent) => Delete(memberEvent);
+
     }
 }
