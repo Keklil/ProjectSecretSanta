@@ -2,7 +2,6 @@
 using SecretSanta_Backend.Models;
 using SecretSanta_Backend.ModelsDTO;
 using SecretSanta_Backend.Interfaces;
-using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 
 namespace SecretSanta_Backend.Controllers
@@ -13,13 +12,11 @@ namespace SecretSanta_Backend.Controllers
     public class AdminController : ControllerBase
     {
         private IRepositoryWrapper _repository;
-        private IMapper _mapper;
         private readonly ILogger<AdminController> _logger;
 
-        public AdminController(ILogger<AdminController> logger, IRepositoryWrapper repository, IMapper mapper)
+        public AdminController(ILogger<AdminController> logger, IRepositoryWrapper repository)
         {
             _logger = logger;
-            _mapper = mapper;
             _repository = repository;
         }
 
@@ -69,7 +66,7 @@ namespace SecretSanta_Backend.Controllers
         {
             try
             {
-                var @event = await _repository.Event.FindByCondition(x => x.Id == eventId).SingleAsync();
+                var @event = await _repository.Event.FindByCondition(x => x.Id == eventId).FirstAsync();
 
                 if (@event is null)
                 {
@@ -98,7 +95,7 @@ namespace SecretSanta_Backend.Controllers
 
 
         [HttpGet("{eventId}")]
-        public async Task<ActionResult<Event>> GetEventById(Guid eventId)
+        public async Task<ActionResult<EventView>> GetEventById(Guid eventId)
         {
             try
             {   if (eventId == Guid.Empty)
@@ -106,7 +103,18 @@ namespace SecretSanta_Backend.Controllers
                 var @event =  await _repository.Event.FindByCondition(x => x.Id == eventId).FirstAsync();
                 if (@event is null)
                     return BadRequest("Game with this Id does not exist.");
-                return @event;
+
+                EventView eventView = new EventView
+                {
+                    Id = eventId,
+                    Description = @event.Description,
+                    EndRegistration = @event.EndRegistration,
+                    EndEvent = @event.EndEvent,
+                    SumPrice = @event.SumPrice,
+                    Tracking = @event.Tracking
+                };
+
+                return Ok(eventView);
 
             }
             catch (Exception ex)
@@ -118,7 +126,7 @@ namespace SecretSanta_Backend.Controllers
         }
 
         [HttpPut]
-        public async Task<IActionResult> UpdateEvent([FromBody]Event @event)
+        public async Task<IActionResult> UpdateEvent(Guid eventId, [FromBody]EventCreate @event)
         {
             try
             {
@@ -133,7 +141,15 @@ namespace SecretSanta_Backend.Controllers
                     return BadRequest("Invalid object");
                 }
 
-                _repository.Event.UpdateEvent(@event);
+                var eventResult = await _repository.Event.FindByCondition(x => x.Id == eventId).FirstAsync();
+
+                eventResult.Description = @event.Description;
+                eventResult.EndRegistration = @event.EndRegistration;
+                eventResult.EndEvent = @event.EndEvent;
+                eventResult.SumPrice = @event.Sumprice;
+                eventResult.Tracking = @event.Tracking;
+
+                _repository.Event.UpdateEvent(eventResult);
                 await _repository.SaveAsync();
 
                 return NoContent();
@@ -158,7 +174,23 @@ namespace SecretSanta_Backend.Controllers
                     return BadRequest("Events null");
                 }
 
-                return Ok(events);
+                List<EventView> eventsList = new List<EventView>();
+
+                foreach (var @event in events)
+                {
+                    EventView view = new EventView
+                    {
+                        Id = @event.Id,
+                        Description = @event.Description,
+                        EndRegistration = @event.EndRegistration,
+                        EndEvent = @event.EndEvent,
+                        SumPrice = @event.SumPrice,
+                        Tracking = @event.Tracking
+                    };
+                    eventsList.Add(view);
+                }
+
+                return Ok(eventsList);
             }
             catch (Exception ex)
             {

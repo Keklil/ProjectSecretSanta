@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using SecretSanta_Backend.Models;
 using SecretSanta_Backend.ModelsDTO;
 using SecretSanta_Backend.Interfaces;
-using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 
 namespace SecretSanta_Backend.Controllers
@@ -13,13 +12,11 @@ namespace SecretSanta_Backend.Controllers
     [Route("member")]
     public class MemberController : ControllerBase
     {
-        private readonly IMapper _mapper;
         private IRepositoryWrapper _repository;
         private ILogger<MemberController> _logger;
 
-        public MemberController(IMapper mapper, IRepositoryWrapper repository, ILogger<MemberController> logger)
+        public MemberController(IRepositoryWrapper repository, ILogger<MemberController> logger)
         {
-            _mapper = mapper;
             _repository = repository;
             _logger = logger;
         }
@@ -98,23 +95,8 @@ namespace SecretSanta_Backend.Controllers
             try
             {
                 Member member = await _repository.Member.GetMemberByIdAsync(memberId);
-                if (member is null)
-                {
-                    _logger.LogError("Member object recived from client is null.");
-                    return BadRequest("Null member");
-                }
                 Address address = await _repository.Address.FindByCondition(x => x.MemberId == memberId).FirstAsync();
-                if (address is null)
-                {
-                    _logger.LogError("Address object recived from client is null.");
-                    return BadRequest("Null address");
-                }
                 MemberEvent memberEvent = await _repository.MemberEvent.FindByCondition(x => x.MemberId == memberId && x.EventId == eventId).FirstAsync();
-                if (memberEvent is null)
-                {
-                    _logger.LogError("MemberEvent object recived from client is null.");
-                    return BadRequest("Null MemberEvent");
-                }
 
                 Wishes wishes = new Wishes
                 {
@@ -167,6 +149,7 @@ namespace SecretSanta_Backend.Controllers
 
                 Address address = new Address
                 {
+                    Id = Guid.NewGuid(),
                     MemberId = member.Id,
                     PhoneNumber = wishes.PhoneNumber,
                     Zip = wishes.Zip,
@@ -178,6 +161,7 @@ namespace SecretSanta_Backend.Controllers
 
                 MemberEvent memberEvent = new MemberEvent
                 {
+                    Id = Guid.NewGuid(),
                     MemberId = memberId,
                     EventId = eventId,
                     MemberAttend = true,
@@ -186,6 +170,7 @@ namespace SecretSanta_Backend.Controllers
 
                 _repository.MemberEvent.CreateMemberEvent(memberEvent);
                 _repository.Address.CreateAddress(address);
+                _repository.MemberEvent.CreateMemberEvent(memberEvent);
                 await _repository.SaveAsync();
 
                 return Ok();
@@ -214,24 +199,26 @@ namespace SecretSanta_Backend.Controllers
                 }
 
                 Member member = await _repository.Member.GetMemberByIdAsync(memberId);
+                Address address = await _repository.Address.FindByCondition(x => x.MemberId == memberId).FirstAsync();
+                MemberEvent memberEvent = await _repository.MemberEvent.FindByCondition(x => x.MemberId == memberId && x.EventId == eventId).FirstAsync();
 
                 string[] words = wishes.Name.Split(' ');
                 member.Surname = words[0];
                 member.Name = words[1];
                 member.Surname = words[2];
 
-                Address address = new Address
-                {
-                    PhoneNumber = wishes.PhoneNumber,
-                    Zip = wishes.Zip,
-                    Region = wishes.Region,
-                    City = wishes.City,
-                    Street = wishes.Street,
-                    Apartment = wishes.Apartment
-                };
+                address.PhoneNumber = wishes.PhoneNumber;
+                address.Zip = wishes.Zip;
+                address.Region = wishes.Region;
+                address.City = wishes.City;
+                address.Street = wishes.Street;
+                address.Apartment = wishes.Apartment;
+
+                memberEvent.Preference = wishes.Wish;
 
                 _repository.Member.UpdateMember(member);
                 _repository.Address.UpdateAddress(address);
+                _repository.MemberEvent.UpdateMemberEvent(memberEvent);
                 await _repository.SaveAsync();
 
                 return NoContent();
@@ -250,7 +237,7 @@ namespace SecretSanta_Backend.Controllers
             {
                 var member = await _repository.MemberEvent.FindByCondition(x => x.MemberId == memberId && x.EventId == eventId).FirstAsync();
                 member.MemberAttend = false;
-                _repository.MemberEvent.Update(member);
+                _repository.MemberEvent.UpdateMemberEvent(member);
                 await _repository.SaveAsync();
 
                 return NoContent();
@@ -284,6 +271,7 @@ namespace SecretSanta_Backend.Controllers
                     {
                         GiftFromMe giftFromMe = new GiftFromMe
                         {
+                            Name = recipient.Surname + " " + recipient.Name + " " + recipient.Surname,
                             Preferences = preferences,
                             Address = recipientAddress.Zip + ", " + recipientAddress.Region + ", " + recipientAddress.City + ", " + recipientAddress.Street + ", тел. " + recipientAddress.PhoneNumber
                         };
@@ -293,6 +281,7 @@ namespace SecretSanta_Backend.Controllers
                     {
                         GiftFromMe giftFromMe = new GiftFromMe
                         {
+                            Name = recipient.Surname + " " + recipient.Name + " " + recipient.Surname,
                             Preferences = preferences,
                             Address = recipientAddress.Zip + ", " + recipientAddress.Region + ", " + recipientAddress.City + ", " + recipientAddress.Street + ", кв. " + recipientAddress.Apartment + ", тел. " + recipientAddress.PhoneNumber
                         };
