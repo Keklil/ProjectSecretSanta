@@ -11,7 +11,7 @@ namespace SecretSanta_Backend.Jobs
             await scheduler.Start();
             
 
-            IJobDetail job = JobBuilder.Create<EventNotificationSender>().Build();
+            IJobDetail job = JobBuilder.Create<WorkOfEndOfEvent>().Build();
 
             ITrigger trigger = TriggerBuilder.Create() 
                 .WithIdentity("trigger1", "group1")   

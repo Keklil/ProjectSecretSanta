@@ -46,7 +46,9 @@ app.MapControllerRoute(
 app.UseCors("CorsPolicy");
 
 
-EventNotificationScheduler.Start();
+//EventNotificationScheduler.Start();
+//var reshuffleService = new ReshuffleService();
+//await reshuffleService.Reshuffle(new Guid("0ff3d625-af85-4015-a808-e310084ad09b"));
 
 
 app.Run();
