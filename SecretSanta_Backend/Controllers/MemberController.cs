@@ -64,14 +64,57 @@ namespace SecretSanta_Backend.Controllers
             }
         }
 
+        [HttpGet("{memberId}/event/{eventId}")]
+        public async Task<ActionResult<UserEventView>> GetEventInfo(Guid memberId, Guid eventId)
+        {
+            try
+            {
+                var @event = await _repository.Event.FindByCondition(x => x.Id == eventId).FirstAsync();
+                var eventPreferences = await _repository.MemberEvent.FindByCondition(x => x.MemberId == memberId && x.EventId == eventId).FirstAsync();
+                var memberAttendCount = _repository.MemberEvent.FindByCondition(x => x.MemberId == memberId).Count();
+
+                UserEventView view = new UserEventView
+                {
+                    Description = @event.Description,
+                    EndRegistration = @event.EndRegistration,
+                    EndEvent = @event.EndEvent,
+                    SumPrice = @event.SumPrice,
+                    Preference = eventPreferences.Preference,
+                    UsersCount = memberAttendCount
+                };
+
+                return Ok(view);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Something went wrong inside GetEventInfo action: {ex.Message}");
+                return StatusCode(500, "Internal server error");
+            }
+        }
+
         [HttpGet("{memberId}/wishes/{eventId}")]
-        public async Task<IActionResult> GetWishes(Guid memberId, Guid eventId)
+        public async Task<ActionResult<Wishes>> GetWishes(Guid memberId, Guid eventId)
         {
             try
             {
                 Member member = await _repository.Member.GetMemberByIdAsync(memberId);
+                if (member is null)
+                {
+                    _logger.LogError("Member object recived from client is null.");
+                    return BadRequest("Null member");
+                }
                 Address address = await _repository.Address.FindByCondition(x => x.MemberId == memberId).FirstAsync();
+                if (address is null)
+                {
+                    _logger.LogError("Address object recived from client is null.");
+                    return BadRequest("Null address");
+                }
                 MemberEvent memberEvent = await _repository.MemberEvent.FindByCondition(x => x.MemberId == memberId && x.EventId == eventId).FirstAsync();
+                if (memberEvent is null)
+                {
+                    _logger.LogError("MemberEvent object recived from client is null.");
+                    return BadRequest("Null MemberEvent");
+                }
 
                 Wishes wishes = new Wishes
                 {
@@ -130,10 +173,18 @@ namespace SecretSanta_Backend.Controllers
                     Region = wishes.Region,
                     City = wishes.City,
                     Street = wishes.Street,
-                    Apartment = wishes.Apartment,
-                    Member = member
+                    Apartment = wishes.Apartment
                 };
 
+                MemberEvent memberEvent = new MemberEvent
+                {
+                    MemberId = memberId,
+                    EventId = eventId,
+                    MemberAttend = true,
+                    Preference = wishes.Wish
+                };
+
+                _repository.MemberEvent.CreateMemberEvent(memberEvent);
                 _repository.Address.CreateAddress(address);
                 await _repository.SaveAsync();
 
@@ -176,8 +227,7 @@ namespace SecretSanta_Backend.Controllers
                     Region = wishes.Region,
                     City = wishes.City,
                     Street = wishes.Street,
-                    Apartment = wishes.Apartment,
-                    Member = member
+                    Apartment = wishes.Apartment
                 };
 
                 _repository.Member.UpdateMember(member);
@@ -193,39 +243,12 @@ namespace SecretSanta_Backend.Controllers
             }
         }
 
-        [HttpGet("{memberId}/event/{eventId}")]
-        public async Task<IActionResult> GetEventInfo(Guid memberId, Guid eventId)
-        {
-            try
-            {
-                var @event = await _repository.Event.FindByCondition(x => x.Id == eventId).SingleAsync();
-                var eventPreferences = await _repository.MemberEvent.FindByCondition(x => x.MemberId == memberId && x.EventId == eventId).SingleAsync();
-                var memberAttendCount = _repository.MemberEvent.FindByCondition(x => x.MemberId == memberId).Count();
-
-                UserEventView view = new UserEventView
-                {
-                    Description = @event.Description,
-                    EndRegistration = @event.EndRegistration,
-                    EndEvent = @event.EndEvent,
-                    SumPrice = @event.SumPrice,
-                    UsersCount = memberAttendCount
-                };
-
-                return Ok(view);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Something went wrong inside GetEventInfo action: {ex.Message}");
-                return StatusCode(500, "Internal server error");
-            }
-        }
-
         [HttpPut("{memberId}/exit/{eventId}")]
         public async Task<IActionResult> MemberLeaveEvent(Guid memberId, Guid eventId)
         {
             try
             {
-                var member = _repository.MemberEvent.FindByCondition(x => x.MemberId == memberId && x.EventId == eventId).First();
+                var member = await _repository.MemberEvent.FindByCondition(x => x.MemberId == memberId && x.EventId == eventId).FirstAsync();
                 member.MemberAttend = false;
                 _repository.MemberEvent.Update(member);
                 await _repository.SaveAsync();
@@ -244,7 +267,7 @@ namespace SecretSanta_Backend.Controllers
         {
             try
             {
-                var recipientId = await _repository.MemberEvent.FindByCondition(x => x.MemberId == memberId && x.EventId == eventId).Select(x => x.Recipient).SingleAsync();
+                var recipientId = await _repository.MemberEvent.FindByCondition(x => x.MemberId == memberId && x.EventId == eventId).Select(x => x.Recipient).FirstAsync();
                 
                 if (recipientId is null)
                 {
@@ -254,9 +277,9 @@ namespace SecretSanta_Backend.Controllers
                 else
                 {
                     Member recipient = await _repository.Member.GetMemberByIdAsync((Guid)recipientId);
-                    var preferences = await _repository.MemberEvent.FindByCondition(x => x.MemberId == recipientId && x.EventId == eventId).Select(x => x.Preference).SingleAsync(); ;
-                    Address recipientAddress = await _repository.Address.FindByCondition(x => recipientId == memberId).SingleAsync();
-                    
+                    var preferences = await _repository.MemberEvent.FindByCondition(x => x.MemberId == (Guid)recipientId && x.EventId == eventId).Select(x => x.Preference).FirstAsync();
+                    Address recipientAddress = await _repository.Address.FindByCondition(x => x.MemberId == (Guid)recipientId).FirstAsync();
+
                     if (recipientAddress.Apartment is null)
                     {
                         GiftFromMe giftFromMe = new GiftFromMe
@@ -282,6 +305,12 @@ namespace SecretSanta_Backend.Controllers
                 _logger.LogError($"Something went wrong inside GetPlaceOfDelivery action: {ex.Message}");
                 return StatusCode(500, "Internal server error");
             }
+        }
+
+        [HttpGet("{memberId}")]
+        public async Task<ActionResult<Member>> GetMemberById(Guid memberId)
+        {
+            return await _repository.Member.GetMemberByIdAsync(memberId);
         }
     }
 }

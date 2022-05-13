@@ -64,23 +64,23 @@ namespace SecretSanta_Backend.Controllers
         }
 
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteEvent(Guid ID)
+        [HttpDelete("{eventId}")]
+        public async Task<IActionResult> DeleteEvent(Guid eventId)
         {
             try
             {
-                var @event = await _repository.Event.FindByCondition(x => x.Id == ID).SingleAsync();
+                var @event = await _repository.Event.FindByCondition(x => x.Id == eventId).SingleAsync();
 
                 if (@event is null)
                 {
-                    _logger.LogError($"Event with ID: {ID} not found");
+                    _logger.LogError($"Event with ID: {eventId} not found");
                     return BadRequest("Event not found");
                 }
 
                 _repository.Event.DeleteEvent(@event);
                 await _repository.SaveAsync();
 
-                return NoContent();
+                return Ok(null);
             }
             catch (Exception ex)
             {
@@ -97,20 +97,23 @@ namespace SecretSanta_Backend.Controllers
         }
 
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Event>> GetEventById(Guid ID)
+        [HttpGet("{eventId}")]
+        public async Task<ActionResult<Event>> GetEventById(Guid eventId)
         {
             try
-            {
-                return await _repository.Event.FindByCondition(x => x.Id == ID).SingleAsync();
+            {   if (eventId == Guid.Empty)
+                    return BadRequest("Request argument omitted.");                
+                var @event =  await _repository.Event.FindByCondition(x => x.Id == eventId).FirstAsync();
+                if (@event is null)
+                    return BadRequest("Game with this Id does not exist.");
+                return @event;
 
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Incorrectly passed ID argument: { ex.Message}.");
-                if (ID == Guid.Empty)
-                    return BadRequest("Request argument omitted.");
-                return BadRequest("Game with this Id does not exist.");
+                return StatusCode(500, "Internal server error");
+                
             }
         }
 
