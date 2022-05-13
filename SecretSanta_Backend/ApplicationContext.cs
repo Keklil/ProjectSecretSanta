@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using SecretSanta_Backend.Models;
 
 namespace SecretSanta_Backend
 {

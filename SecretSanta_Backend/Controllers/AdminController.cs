@@ -2,7 +2,6 @@
 using SecretSanta_Backend.Models;
 using SecretSanta_Backend.ModelsDTO;
 using SecretSanta_Backend.Interfaces;
-using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 
 namespace SecretSanta_Backend.Controllers
@@ -13,13 +12,11 @@ namespace SecretSanta_Backend.Controllers
     public class AdminController : ControllerBase
     {
         private IRepositoryWrapper _repository;
-        private IMapper _mapper;
         private readonly ILogger<AdminController> _logger;
 
-        public AdminController(ILogger<AdminController> logger, IRepositoryWrapper repository, IMapper mapper)
+        public AdminController(ILogger<AdminController> logger, IRepositoryWrapper repository)
         {
             _logger = logger;
-            _mapper = mapper;
             _repository = repository;
         }
 
