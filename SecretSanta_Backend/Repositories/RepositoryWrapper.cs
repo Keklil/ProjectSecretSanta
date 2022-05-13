@@ -75,7 +75,7 @@ namespace SecretSanta_Backend.Repositories
             context = new ApplicationContext(optionsBuilder.Options);
         }
 
-        public async void Save()
+        public async Task Save()
         {
             await context.SaveChangesAsync();
         }
