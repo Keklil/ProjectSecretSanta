@@ -88,9 +88,29 @@ namespace SecretSanta_Backend.Controllers
 
 
         [HttpGet("events")]
-        public async Task<IEnumerable<Event>> GetEvents()
+        public async Task<ActionResult<EventView>> GetEvents()
         {
-            return await _repository.Event.FindAll().ToListAsync();
+            var events = await _repository.Event.FindAll().ToListAsync();
+            if (events is null)
+                return BadRequest("Events does not exist.");
+
+            List<EventView> eventsList = new List<EventView>();
+
+            foreach (var @event in events)
+            {
+                EventView view = new EventView
+                {
+                    Id = @event.Id,
+                    Description = @event.Description,
+                    EndRegistration = @event.EndRegistration,
+                    EndEvent = @event.EndEvent,
+                    SumPrice = @event.SumPrice,
+                    Tracking = @event.Tracking
+                };
+                eventsList.Add(view);
+            }
+
+            return Ok(eventsList);
         }
 
 
