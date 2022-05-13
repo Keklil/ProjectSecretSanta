@@ -5,6 +5,7 @@ namespace SecretSanta_Backend.Models
 {
     public partial class MemberEvent
     {
+        public Guid Id { get; set; }
         public Guid MemberId { get; set; }
         public Guid EventId { get; set; }
         public bool? MemberAttend { get; set; }

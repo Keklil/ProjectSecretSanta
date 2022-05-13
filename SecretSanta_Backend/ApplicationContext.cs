@@ -1,5 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
-using SecretSanta_Backend.Models;
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace SecretSanta_Backend
 {
@@ -23,9 +25,11 @@ namespace SecretSanta_Backend
         {
             modelBuilder.Entity<Address>(entity =>
             {
-                entity.HasNoKey();
-
                 entity.ToTable("Address");
+
+                entity.Property(e => e.Id)
+                    .ValueGeneratedNever()
+                    .HasColumnName("id");
 
                 entity.Property(e => e.Apartment)
                     .HasMaxLength(5)
@@ -54,7 +58,7 @@ namespace SecretSanta_Backend
                     .HasColumnName("zip");
 
                 entity.HasOne(d => d.Member)
-                    .WithMany()
+                    .WithMany(p => p.Addresses)
                     .HasForeignKey(d => d.MemberId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("fk_Address_Member_1");
@@ -111,6 +115,10 @@ namespace SecretSanta_Backend
                     .HasMaxLength(50)
                     .HasColumnName("patronymic");
 
+                entity.Property(e => e.Role)
+                    .HasMaxLength(50)
+                    .HasColumnName("role");
+
                 entity.Property(e => e.Surname)
                     .HasMaxLength(50)
                     .HasColumnName("surname");
@@ -118,9 +126,11 @@ namespace SecretSanta_Backend
 
             modelBuilder.Entity<MemberEvent>(entity =>
             {
-                entity.HasNoKey();
-
                 entity.ToTable("Member_Event");
+
+                entity.Property(e => e.Id)
+                    .ValueGeneratedNever()
+                    .HasColumnName("id");
 
                 entity.Property(e => e.DeliveryService)
                     .HasMaxLength(100)
@@ -145,13 +155,13 @@ namespace SecretSanta_Backend
                     .HasColumnName("track_number");
 
                 entity.HasOne(d => d.Event)
-                    .WithMany()
+                    .WithMany(p => p.MemberEvents)
                     .HasForeignKey(d => d.EventId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("fk_Member_Event_Event_1");
 
                 entity.HasOne(d => d.Member)
-                    .WithMany()
+                    .WithMany(p => p.MemberEvents)
                     .HasForeignKey(d => d.MemberId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("fk_Member_Event_Member_1");
