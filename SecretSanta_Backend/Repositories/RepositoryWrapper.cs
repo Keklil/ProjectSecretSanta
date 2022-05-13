@@ -79,5 +79,10 @@ namespace SecretSanta_Backend.Repositories
         {
             await context.SaveChangesAsync();
         }
+
+        public async Task SaveAsync()
+        {
+            await context.SaveChangesAsync();
+        }
     }
 }

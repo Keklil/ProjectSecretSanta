@@ -36,13 +36,12 @@ app.UseStaticFiles();
 app.UseRouting();
 
 
-
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller}/{action=Index}/{id?}");
+    pattern: "{controller}/{action}/{id?}");
 
 app.UseCors("CorsPolicy");
 

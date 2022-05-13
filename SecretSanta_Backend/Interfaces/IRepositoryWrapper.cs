@@ -7,5 +7,6 @@
         IMemberEventRepository MemberEvent { get; }
         IAddressRepository Address { get; }
         Task Save();
+        Task SaveAsync();
     }
 }
