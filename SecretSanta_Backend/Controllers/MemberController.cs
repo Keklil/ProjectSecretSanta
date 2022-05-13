@@ -297,9 +297,19 @@ namespace SecretSanta_Backend.Controllers
         }
 
         [HttpGet("{memberId}")]
-        public async Task<ActionResult<Member>> GetMemberById(Guid memberId)
+        public async Task<ActionResult<MemberView>> GetMemberById(Guid memberId)
         {
-            return await _repository.Member.GetMemberByIdAsync(memberId);
+            var member = await _repository.Member.GetMemberByIdAsync(memberId);
+
+            MemberView memberView = new MemberView
+            {
+                Id = memberId,
+                Surname = member.Surname,
+                Name = member.Name,
+                Patronymic = member.Patronymic,
+                Email = member.Email
+            };
+            return Ok(memberView);
         }
     }
 }

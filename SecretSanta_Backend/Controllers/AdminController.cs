@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SecretSanta_Backend.Services;
 using SecretSanta_Backend.Models;
 using SecretSanta_Backend.ModelsDTO;
 using SecretSanta_Backend.Interfaces;
@@ -41,8 +42,8 @@ namespace SecretSanta_Backend.Controllers
                 {
                     Id = eventId,
                     Description = @event.Description,
-                    EndEvent = @event.EndEvent,
-                    EndRegistration = @event.EndRegistration,
+                    EndEvent = @event.EndEvent.SetKindUtc(),
+                    EndRegistration = @event.EndRegistration.SetKindUtc(),
                     SumPrice = @event.Sumprice,
                     SendFriends = @event.Sendfriends,
                     Tracking = @event.Tracking
@@ -118,9 +119,10 @@ namespace SecretSanta_Backend.Controllers
         public async Task<ActionResult<EventView>> GetEventById(Guid eventId)
         {
             try
-            {   if (eventId == Guid.Empty)
-                    return BadRequest("Request argument omitted.");                
-                var @event =  await _repository.Event.FindByCondition(x => x.Id == eventId).FirstAsync();
+            { 
+                if (eventId == Guid.Empty)
+                    return BadRequest("Request argument omitted.");
+                var @event = await _repository.Event.FindByCondition(x => x.Id == eventId).FirstAsync();
                 if (@event is null)
                     return BadRequest("Game with this Id does not exist.");
 
@@ -141,12 +143,12 @@ namespace SecretSanta_Backend.Controllers
             {
                 _logger.LogError($"Incorrectly passed ID argument: { ex.Message}.");
                 return StatusCode(500, "Internal server error");
-                
+
             }
         }
 
-        [HttpPut]
-        public async Task<IActionResult> UpdateEvent(Guid eventId, [FromBody]EventCreate @event)
+        [HttpPut("{eventId}")]
+        public async Task<IActionResult> UpdateEventById(Guid eventId, [FromBody]EventCreate @event)
         {
             try
             {
@@ -164,8 +166,8 @@ namespace SecretSanta_Backend.Controllers
                 var eventResult = await _repository.Event.FindByCondition(x => x.Id == eventId).FirstAsync();
 
                 eventResult.Description = @event.Description;
-                eventResult.EndRegistration = @event.EndRegistration;
-                eventResult.EndEvent = @event.EndEvent;
+                eventResult.EndRegistration = @event.EndRegistration.SetKindUtc();
+                eventResult.EndEvent = @event.EndEvent.SetKindUtc();
                 eventResult.SumPrice = @event.Sumprice;
                 eventResult.Tracking = @event.Tracking;
 
