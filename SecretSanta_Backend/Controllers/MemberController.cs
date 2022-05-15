@@ -67,8 +67,14 @@ namespace SecretSanta_Backend.Controllers
         {
             try
             {
-                var @event = await _repository.Event.FindByCondition(x => x.Id == eventId).FirstAsync();
-                var eventPreferences = await _repository.MemberEvent.FindByCondition(x => x.MemberId == memberId && x.EventId == eventId).FirstAsync();
+                var @event = await _repository.Event.FindByCondition(x => x.Id == eventId).FirstOrDefaultAsync();
+                if (@event is null)
+                {
+                    _logger.LogError("Event object is null.");
+                    return BadRequest("Event not found");
+                }
+
+                var eventPreferences = await _repository.MemberEvent.FindByCondition(x => x.MemberId == memberId && x.EventId == eventId).FirstOrDefaultAsync();
                 var memberAttendCount = _repository.MemberEvent.FindByCondition(x => x.MemberId == memberId).Count();
 
                 UserEventView view = new UserEventView
@@ -95,9 +101,14 @@ namespace SecretSanta_Backend.Controllers
         {
             try
             {
-                Member member = await _repository.Member.GetMemberByIdAsync(memberId);
-                Address address = await _repository.Address.FindByCondition(x => x.MemberId == memberId).FirstAsync();
-                MemberEvent memberEvent = await _repository.MemberEvent.FindByCondition(x => x.MemberId == memberId && x.EventId == eventId).FirstAsync();
+                var member = await _repository.Member.GetMemberByIdAsync(memberId);
+                if (member is null)
+                {
+                    _logger.LogError("Member object is null.");
+                    return BadRequest("Member not found");
+                }
+                var address = await _repository.Address.FindByCondition(x => x.MemberId == memberId).FirstOrDefaultAsync();
+                var preferences = await _repository.MemberEvent.FindByCondition(x => x.MemberId == memberId && x.EventId == eventId).Select(x => x.Preference).FirstOrDefaultAsync();
 
                 Wishes wishes = new Wishes
                 {
@@ -108,7 +119,7 @@ namespace SecretSanta_Backend.Controllers
                     City = address.City,
                     Street = address.Street,
                     Apartment = address.Apartment,
-                    Wish = memberEvent.Preference
+                    Wish = preferences
                 };
 
                 return Ok(wishes);
@@ -200,8 +211,8 @@ namespace SecretSanta_Backend.Controllers
                 }
 
                 Member member = await _repository.Member.GetMemberByIdAsync(memberId);
-                Address address = await _repository.Address.FindByCondition(x => x.MemberId == memberId).FirstAsync();
-                MemberEvent memberEvent = await _repository.MemberEvent.FindByCondition(x => x.MemberId == memberId && x.EventId == eventId).FirstAsync();
+                var address = await _repository.Address.FindByCondition(x => x.MemberId == memberId).FirstOrDefaultAsync();
+                var memberEvent = await _repository.MemberEvent.FindByCondition(x => x.MemberId == memberId && x.EventId == eventId).FirstOrDefaultAsync();
 
                 string[] words = wishes.Name.Split(' ');
                 member.Surname = words[0];
@@ -237,7 +248,13 @@ namespace SecretSanta_Backend.Controllers
         {
             try
             {
-                var member = await _repository.MemberEvent.FindByCondition(x => x.MemberId == memberId && x.EventId == eventId).FirstAsync();
+                var member = await _repository.MemberEvent.FindByCondition(x => x.MemberId == memberId && x.EventId == eventId).FirstOrDefaultAsync();
+                if (member is null)
+                {
+                    _logger.LogError($"Member object not found");
+                    return BadRequest("Member not found");
+                }
+
                 member.MemberAttend = false;
                 _repository.MemberEvent.UpdateMemberEvent(member);
                 await _repository.SaveAsync();
@@ -257,8 +274,8 @@ namespace SecretSanta_Backend.Controllers
         {
             try
             {
-                var recipientId = await _repository.MemberEvent.FindByCondition(x => x.MemberId == memberId && x.EventId == eventId).Select(x => x.Recipient).FirstAsync();
-                
+                var recipientId = await _repository.MemberEvent.FindByCondition(x => x.MemberId == memberId && x.EventId == eventId).Select(x => x.Recipient).FirstOrDefaultAsync();
+
                 if (recipientId is null)
                 {
                     _logger.LogError("Mamber object has not recipient Id.");
@@ -302,17 +319,31 @@ namespace SecretSanta_Backend.Controllers
         [HttpGet("{memberId}")]
         public async Task<ActionResult<MemberView>> GetMemberById(Guid memberId)
         {
-            var member = await _repository.Member.GetMemberByIdAsync(memberId);
+            try 
+            {            
+                var member = await _repository.Member.GetMemberByIdAsync(memberId);
+                if (member is null)
+                {
+                    _logger.LogError("Member object not found.");
+                    return BadRequest("Member not found");
+                }
 
-            MemberView memberView = new MemberView
+                MemberView memberView = new MemberView
+                {
+                    Id = memberId,
+                    Surname = member.Surname,
+                    Name = member.Name,
+                    Patronymic = member.Patronymic,
+                    Email = member.Email
+                };
+                return Ok(memberView); 
+            }
+            catch (Exception ex)
             {
-                Id = memberId,
-                Surname = member.Surname,
-                Name = member.Name,
-                Patronymic = member.Patronymic,
-                Email = member.Email
-            };
-            return Ok(memberView);
+                _logger.LogError($"Something went wrong inside GetMemberById action: {ex.Message}");
+                return StatusCode(500, "Internal server error");
+            }
+
         }
     }
 }

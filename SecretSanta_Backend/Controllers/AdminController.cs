@@ -67,7 +67,7 @@ namespace SecretSanta_Backend.Controllers
         {
             try
             {
-                var @event = await _repository.Event.FindByCondition(x => x.Id == eventId).FirstAsync();
+                var @event = await _repository.Event.FindByCondition(x => x.Id == eventId).FirstOrDefaultAsync();
 
                 if (@event is null)
                 {
@@ -123,7 +123,7 @@ namespace SecretSanta_Backend.Controllers
             { 
                 if (eventId == Guid.Empty)
                     return BadRequest("Request argument omitted.");
-                var @event = await _repository.Event.FindByCondition(x => x.Id == eventId).FirstAsync();
+                var @event = await _repository.Event.FindByCondition(x => x.Id == eventId).FirstOrDefaultAsync();
                 if (@event is null)
                     return BadRequest("Game with this Id does not exist.");
 
@@ -164,7 +164,12 @@ namespace SecretSanta_Backend.Controllers
                     return BadRequest("Invalid object");
                 }
 
-                var eventResult = await _repository.Event.FindByCondition(x => x.Id == eventId).FirstAsync();
+                var eventResult = await _repository.Event.FindByCondition(x => x.Id == eventId).FirstOrDefaultAsync();
+                if (eventResult is null)
+                {
+                    _logger.LogError("Event object not found.");
+                    return BadRequest("Event not found");
+                }
 
                 eventResult.Description = @event.Description;
                 eventResult.EndRegistration = @event.EndRegistration.SetKindUtc();
@@ -195,7 +200,7 @@ namespace SecretSanta_Backend.Controllers
                 if (events == null)
                 {
                     _logger.LogError("Member is not take part one more event");
-                    return BadRequest("Events null");
+                    return BadRequest("Events not found");
                 }
 
                 List<EventView> eventsList = new List<EventView>();
