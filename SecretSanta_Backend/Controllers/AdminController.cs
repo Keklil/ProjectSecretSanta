@@ -78,7 +78,8 @@ namespace SecretSanta_Backend.Controllers
                 _repository.Event.DeleteEvent(@event);
                 await _repository.SaveAsync();
 
-                return Ok(null);
+                //return NoContent();
+                return StatusCode(200, "{}");
             }
             catch (Exception ex)
             {
@@ -174,7 +175,8 @@ namespace SecretSanta_Backend.Controllers
                 _repository.Event.UpdateEvent(eventResult);
                 await _repository.SaveAsync();
 
-                return NoContent();
+                //return NoContent();
+                return StatusCode(200, "{}");
             }
             catch (Exception ex)
             {

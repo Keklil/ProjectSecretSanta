@@ -52,7 +52,8 @@ namespace SecretSanta_Backend.Controllers
                 };
 
                 // TODO: Auth method here ->
-                return NoContent();
+                //return NoContent();
+                return StatusCode(200, "{}");
             }
             catch (Exception ex)
             {
@@ -221,7 +222,8 @@ namespace SecretSanta_Backend.Controllers
                 _repository.MemberEvent.UpdateMemberEvent(memberEvent);
                 await _repository.SaveAsync();
 
-                return NoContent();
+                //return NoContent();
+                return StatusCode(200, "{}");
             }
             catch (Exception ex)
             {
@@ -240,7 +242,8 @@ namespace SecretSanta_Backend.Controllers
                 _repository.MemberEvent.UpdateMemberEvent(member);
                 await _repository.SaveAsync();
 
-                return NoContent();
+                //return NoContent();
+                return StatusCode(200, "{}");
             }
             catch (Exception ex)
             {
