@@ -127,8 +127,50 @@ namespace SecretSanta_Backend.Controllers
                 if (@event is null)
                     return BadRequest("Game with this Id does not exist.");
 
-                var eventCount = await _repository.MemberEvent.FindByCondition(x => x.EventId == eventId).CountAsync();
+                var eventCount = await _repository.MemberEvent.FindByCondition(x => x.EventId == eventId).Select(x => x.EventId).CountAsync();
 
+                var eventsMember = await _repository.MemberEvent.FindByCondition(x => x.EventId == eventId).ToListAsync();
+                
+                List<MemberViewAdmin> memberViewAdminList = new List<MemberViewAdmin>();
+                foreach(var eventMember in eventsMember)
+                {
+                    var memberSearch = await _repository.Member.FindByCondition(x => x.Id == eventMember.MemberId).FirstOrDefaultAsync();
+                    MemberView memberView = new MemberView
+                    {
+                        Id = memberSearch.Id,
+                        Surname = memberSearch.Surname,
+                        Name = memberSearch.Name,
+                        Patronymic = memberSearch.Patronymic
+                    };
+
+                    var memberRecipientSearch = await _repository.Member.FindByCondition(x => x.Id == eventMember.Recipient).FirstOrDefaultAsync();
+                    MemberView memberRecipient = new MemberView
+                    {
+                        Id = memberRecipientSearch.Id,
+                        Surname = memberRecipientSearch.Surname,
+                        Name = memberRecipientSearch.Name,
+                        Patronymic = memberRecipientSearch.Patronymic
+                    };
+
+                    var memberSenderId = await _repository.MemberEvent.FindByCondition(x => x.Recipient == eventMember.MemberId).Select(x => x.MemberId).FirstOrDefaultAsync();
+                    var memberSenderSearch = await _repository.Member.FindByCondition(x => x.Id == memberSenderId).FirstOrDefaultAsync();
+                    MemberView memberSender = new MemberView
+                    {
+                        Id = memberSenderSearch.Id,
+                        Surname = memberSenderSearch.Surname,
+                        Name = memberSenderSearch.Name,
+                        Patronymic = memberSenderSearch.Patronymic
+                    };
+
+                    MemberViewAdmin memberViewAdmin = new MemberViewAdmin
+                    {
+                        MemberView = memberView,
+                        MemberRecipient = memberRecipient,
+                        MemberSender = memberSender
+                    };
+                    memberViewAdminList.Add(memberViewAdmin);
+                }
+                
                 EventView eventView = new EventView
                 {
                     Id = eventId,
@@ -137,7 +179,8 @@ namespace SecretSanta_Backend.Controllers
                     EndEvent = @event.EndEvent,
                     SumPrice = @event.SumPrice,
                     Tracking = @event.Tracking,
-                    MembersCount = eventCount
+                    MembersCount = eventCount,
+                    MemberView = memberViewAdminList
                 };
 
                 return Ok(eventView);
