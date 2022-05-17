@@ -12,5 +12,6 @@ namespace SecretSanta_Backend.Models
         public int? SumPrice { get; set; }
         public bool? SendFriends { get; set; }
         public bool? Tracking { get; set; }
+        public int? MembersCount { get; set; }
     }
 }

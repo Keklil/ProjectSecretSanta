@@ -63,7 +63,7 @@ namespace SecretSanta_Backend.Controllers
         }
 
         [HttpGet("{memberId}/event/{eventId}")]
-        public async Task<ActionResult<UserEventView>> GetEventInfo(Guid memberId, Guid eventId)
+        public async Task<ActionResult<MemberEventView>> GetEventInfo(Guid memberId, Guid eventId)
         {
             try
             {
@@ -75,16 +75,16 @@ namespace SecretSanta_Backend.Controllers
                 }
 
                 var eventPreferences = await _repository.MemberEvent.FindByCondition(x => x.MemberId == memberId && x.EventId == eventId).FirstOrDefaultAsync();
-                var memberAttendCount = _repository.MemberEvent.FindByCondition(x => x.MemberId == memberId).Count();
+                var memberAttendCount = await _repository.MemberEvent.FindByCondition(x => x.EventId == eventId).CountAsync();
 
-                UserEventView view = new UserEventView
+                MemberEventView view = new MemberEventView
                 {
                     Description = @event.Description,
                     EndRegistration = @event.EndRegistration,
                     EndEvent = @event.EndEvent,
                     SumPrice = @event.SumPrice,
                     Preference = eventPreferences.Preference,
-                    UsersCount = memberAttendCount
+                    MembersCount = memberAttendCount
                 };
 
                 return Ok(view);

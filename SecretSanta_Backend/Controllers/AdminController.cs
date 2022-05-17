@@ -127,6 +127,8 @@ namespace SecretSanta_Backend.Controllers
                 if (@event is null)
                     return BadRequest("Game with this Id does not exist.");
 
+                var eventCount = await _repository.MemberEvent.FindByCondition(x => x.EventId == eventId).CountAsync();
+
                 EventView eventView = new EventView
                 {
                     Id = eventId,
@@ -134,7 +136,8 @@ namespace SecretSanta_Backend.Controllers
                     EndRegistration = @event.EndRegistration,
                     EndEvent = @event.EndEvent,
                     SumPrice = @event.SumPrice,
-                    Tracking = @event.Tracking
+                    Tracking = @event.Tracking,
+                    MembersCount = eventCount
                 };
 
                 return Ok(eventView);
