@@ -14,12 +14,12 @@ namespace SecretSanta_Backend.Models
         public bool? SendFriends { get; set; }
         public bool? Tracking { get; set; }
         public int? MembersCount { get; set; }
-        public List<MemberViewAdmin> MemberView { get; set; }
+        public List<MemberViewAdmin>? MemberView { get; set; }
     }
     public class MemberViewAdmin
     {
-        public MemberView MemberView { get; set; }
-        public MemberView MemberRecipient { get; set; }
-        public MemberView MemberSender { get; set; }
+        public MemberView? MemberView { get; set; }
+        public MemberView? MemberRecipient { get; set; }
+        public MemberView? MemberSender { get; set; }
     }
 }

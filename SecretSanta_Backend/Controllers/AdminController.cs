@@ -135,32 +135,36 @@ namespace SecretSanta_Backend.Controllers
                 foreach(var eventMember in eventsMember)
                 {
                     var memberSearch = await _repository.Member.FindByCondition(x => x.Id == eventMember.MemberId).FirstOrDefaultAsync();
-                    MemberView memberView = new MemberView
+                    MemberView memberView = new MemberView();
+                    if (memberSearch != null)
                     {
-                        Id = memberSearch.Id,
-                        Surname = memberSearch.Surname,
-                        Name = memberSearch.Name,
-                        Patronymic = memberSearch.Patronymic
-                    };
+                        memberView.Surname = memberSearch.Surname;
+                        memberView.Name = memberSearch.Name;
+                        memberView.Patronymic = memberSearch.Patronymic;
+                        memberView.Email = memberSearch.Email;
+                    }
 
                     var memberRecipientSearch = await _repository.Member.FindByCondition(x => x.Id == eventMember.Recipient).FirstOrDefaultAsync();
-                    MemberView memberRecipient = new MemberView
+                    MemberView memberRecipient = new MemberView();
+                    if (memberRecipientSearch != null)
                     {
-                        Id = memberRecipientSearch.Id,
-                        Surname = memberRecipientSearch.Surname,
-                        Name = memberRecipientSearch.Name,
-                        Patronymic = memberRecipientSearch.Patronymic
-                    };
+                        memberRecipient.Surname = memberRecipientSearch.Surname;
+                        memberRecipient.Name = memberRecipientSearch.Name;
+                        memberRecipient.Patronymic = memberRecipientSearch.Patronymic;
+                        memberRecipient.Email = memberRecipientSearch.Email;
 
-                    var memberSenderId = await _repository.MemberEvent.FindByCondition(x => x.Recipient == eventMember.MemberId).Select(x => x.MemberId).FirstOrDefaultAsync();
+                    }
+
+                    var memberSenderId = await _repository.MemberEvent.FindByCondition(x => x.Recipient == eventMember.MemberId && x.EventId == eventId).Select(x => x.MemberId).FirstOrDefaultAsync();
                     var memberSenderSearch = await _repository.Member.FindByCondition(x => x.Id == memberSenderId).FirstOrDefaultAsync();
-                    MemberView memberSender = new MemberView
+                    MemberView memberSender = new MemberView();
+                    if (memberSenderSearch != null)
                     {
-                        Id = memberSenderSearch.Id,
-                        Surname = memberSenderSearch.Surname,
-                        Name = memberSenderSearch.Name,
-                        Patronymic = memberSenderSearch.Patronymic
-                    };
+                        memberSender.Surname = memberSenderSearch.Surname;
+                        memberSender.Name = memberSenderSearch.Name;
+                        memberSender.Patronymic = memberSenderSearch.Patronymic;
+                        memberSender.Email = memberSenderSearch.Email;
+                    }
 
                     MemberViewAdmin memberViewAdmin = new MemberViewAdmin
                     {

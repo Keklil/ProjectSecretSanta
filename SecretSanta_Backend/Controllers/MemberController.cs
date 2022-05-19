@@ -330,7 +330,6 @@ namespace SecretSanta_Backend.Controllers
 
                 MemberView memberView = new MemberView
                 {
-                    Id = memberId,
                     Surname = member.Surname,
                     Name = member.Name,
                     Patronymic = member.Patronymic,
