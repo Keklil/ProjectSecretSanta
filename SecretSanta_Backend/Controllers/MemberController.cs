@@ -270,7 +270,7 @@ namespace SecretSanta_Backend.Controllers
         }
 
         [HttpGet("{userId}/event/{eventId}/recipientInfo")]
-        public async Task<IActionResult> GetPlaceOfDelivery(Guid userId, Guid eventId)
+        public async Task<ActionResult<GiftFromMe>> GetPlaceOfDelivery(Guid userId, Guid eventId)
         {
             try
             {
