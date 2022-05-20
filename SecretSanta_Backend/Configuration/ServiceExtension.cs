@@ -2,6 +2,10 @@
 using SecretSanta_Backend.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
+using SecretSanta_Backend.Services;
+using SecretSanta_Backend.Jobs;
+using Quartz;
+using Microsoft.Extensions.Options;
 
 namespace SecretSanta_Backend.Configuration
 {
@@ -22,7 +26,7 @@ namespace SecretSanta_Backend.Configuration
         {
             services.Configure<IISOptions>(options =>
             {
-
+                
             });
         }
 

@@ -1,40 +1,40 @@
-﻿using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using SecretSanta_Backend.Services;
 using SecretSanta_Backend.Models;
+using SecretSanta_Backend.ModelsDTO;
 using SecretSanta_Backend.Interfaces;
-using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace SecretSanta_Backend.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("event")]
+
     public class AdminController : ControllerBase
     {
-        private IRepositoryWrapper repository;
-        private IMapper mapper;
+        private IRepositoryWrapper _repository;
         private readonly ILogger<AdminController> _logger;
 
-        public AdminController(ILogger<AdminController> logger, IRepositoryWrapper repository, IMapper mapper)
+        public AdminController(ILogger<AdminController> logger, IRepositoryWrapper repository)
         {
             _logger = logger;
-            this.mapper = mapper;
-            this.repository = repository;
+            _repository = repository;
         }
 
         [HttpPost]
-        public IActionResult CreateEvent([FromBody] Event @event)
+        public async Task<IActionResult> CreateEvent([FromBody] EventCreate @event)
         {
             try
             {
                 if (@event is null)
                 {
                     _logger.LogError("Event object recived from client is null.");
-                    return BadRequest("Null object");
+                    return BadRequest(new { message = "Null object" });
                 }
                 if (!ModelState.IsValid)
                 {
                     _logger.LogError("Event object recived from client is not valid.");
-                    return BadRequest("Invalid object");
+                    return BadRequest(new { message = "Invalid object" });
                 }
 
                 var eventId = Guid.NewGuid();
@@ -42,95 +42,239 @@ namespace SecretSanta_Backend.Controllers
                 {
                     Id = eventId,
                     Description = @event.Description,
-                    EndEvent = @event.EndEvent,
-                    EndRegistration = @event.EndRegistration
+                    EndEvent = @event.EndEvent.SetKindUtc(),
+                    EndRegistration = @event.EndRegistration.SetKindUtc(),
+                    SumPrice = @event.Sumprice,
+                    SendFriends = @event.Sendfriends,
+                    Tracking = @event.Tracking
                 };
 
-                repository.Event.CreateEvent(eventResult);
-                repository.Save();
+                _repository.Event.CreateEvent(eventResult);
+                await _repository.SaveAsync();
 
                 return Ok(eventResult);
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Something went wrong inside CreateEvent action: {ex.Message}");
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, new { message = "Internal server error" });
             }
         }
 
-        [HttpDelete("id")]
-        public IActionResult DeleteEvent(Guid ID)
+
+        [HttpDelete("{eventId}")]
+        public async Task<IActionResult> DeleteEvent(Guid eventId)
         {
             try
             {
-                var @event = repository.Event.FindByCondition(x => x.Id == ID).First();
+                var @event = await _repository.Event.FindByCondition(x => x.Id == eventId).FirstOrDefaultAsync();
+
                 if (@event is null)
                 {
-                    _logger.LogError($"Event with ID: {ID} not found");
-                    return BadRequest("Event not found");
+                    _logger.LogError($"Event with ID: {eventId} not found");
+                    return BadRequest(new { message = "Event not found" });
                 }
 
-                repository.Event.DeleteEvent(@event);
-                repository.Save();
+                _repository.Event.DeleteEvent(@event);
+                await _repository.SaveAsync();
 
-                return NoContent();
+                //return NoContent();
+                return StatusCode(200, "{}");
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Incorrectly passed ID argument: { ex.Message}.");
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, new { message = "Internal server error" });
             }
         }
 
 
-        [HttpGet]
-        public IEnumerable<Event> Get()
+        [HttpGet("events")]
+        public async Task<ActionResult<EventView>> GetEvents()
         {
-            return repository.Event.FindAll().ToArray();
+            var events = await _repository.Event.FindAll().ToListAsync();
+            if (events is null)
+                return BadRequest(new { message = "Events does not exist." });
+
+            List<EventView> eventsList = new List<EventView>();
+
+            foreach (var @event in events)
+            {
+                EventView view = new EventView
+                {
+                    Id = @event.Id,
+                    Description = @event.Description,
+                    EndRegistration = @event.EndRegistration,
+                    EndEvent = @event.EndEvent,
+                    SumPrice = @event.SumPrice,
+                    Tracking = @event.Tracking
+                };
+                eventsList.Add(view);
+            }
+
+            return Ok(eventsList);
         }
 
 
-        [HttpGet("id")]
-        public ActionResult<Event> GetById(Guid ID)
+        [HttpGet("{eventId}")]
+        public async Task<ActionResult<EventView>> GetEventById(Guid eventId)
         {
             try
-            {
-                return repository.Event.FindByCondition(x => x.Id == ID).First();
+            { 
+                if (eventId == Guid.Empty)
+                    return BadRequest(new { message = "Request argument omitted." });
+                var @event = await _repository.Event.FindByCondition(x => x.Id == eventId).FirstOrDefaultAsync();
+                if (@event is null)
+                    return BadRequest(new { message = "Game with this Id does not exist." });
+
+                var eventCount = await _repository.MemberEvent.FindByCondition(x => x.EventId == eventId).Select(x => x.EventId).CountAsync();
+
+                var eventsMember = await _repository.MemberEvent.FindByCondition(x => x.EventId == eventId).ToListAsync();
+                
+                List<MemberViewAdmin> memberViewAdminList = new List<MemberViewAdmin>();
+                foreach(var eventMember in eventsMember)
+                {
+                    var memberSearch = await _repository.Member.FindByCondition(x => x.Id == eventMember.MemberId).FirstOrDefaultAsync();
+                    MemberView memberView = new MemberView();
+                    if (memberSearch != null)
+                    {
+                        memberView.Surname = memberSearch.Surname;
+                        memberView.Name = memberSearch.Name;
+                        memberView.Patronymic = memberSearch.Patronymic;
+                        memberView.Email = memberSearch.Email;
+                    }
+
+                    var memberRecipientSearch = await _repository.Member.FindByCondition(x => x.Id == eventMember.Recipient).FirstOrDefaultAsync();
+                    MemberView memberRecipient = new MemberView();
+                    if (memberRecipientSearch != null)
+                    {
+                        memberRecipient.Surname = memberRecipientSearch.Surname;
+                        memberRecipient.Name = memberRecipientSearch.Name;
+                        memberRecipient.Patronymic = memberRecipientSearch.Patronymic;
+                        memberRecipient.Email = memberRecipientSearch.Email;
+
+                    }
+
+                    var memberSenderId = await _repository.MemberEvent.FindByCondition(x => x.Recipient == eventMember.MemberId && x.EventId == eventId).Select(x => x.MemberId).FirstOrDefaultAsync();
+                    var memberSenderSearch = await _repository.Member.FindByCondition(x => x.Id == memberSenderId).FirstOrDefaultAsync();
+                    MemberView memberSender = new MemberView();
+                    if (memberSenderSearch != null)
+                    {
+                        memberSender.Surname = memberSenderSearch.Surname;
+                        memberSender.Name = memberSenderSearch.Name;
+                        memberSender.Patronymic = memberSenderSearch.Patronymic;
+                        memberSender.Email = memberSenderSearch.Email;
+                    }
+
+                    MemberViewAdmin memberViewAdmin = new MemberViewAdmin
+                    {
+                        MemberView = memberView,
+                        MemberRecipient = memberRecipient,
+                        MemberSender = memberSender
+                    };
+                    memberViewAdminList.Add(memberViewAdmin);
+                }
+                
+                EventView eventView = new EventView
+                {
+                    Id = eventId,
+                    Description = @event.Description,
+                    EndRegistration = @event.EndRegistration,
+                    EndEvent = @event.EndEvent,
+                    SumPrice = @event.SumPrice,
+                    Tracking = @event.Tracking,
+                    MembersCount = eventCount,
+                    MemberView = memberViewAdminList
+                };
+
+                return Ok(eventView);
+
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Incorrectly passed ID argument: { ex.Message}.");
-                if (ID == Guid.Empty)
-                    return BadRequest("Request argument omitted.");
-                return BadRequest("Game with this Id does not exist.");
+                return StatusCode(500, new { message = "Internal server error" });
+
             }
         }
 
-        [HttpPut]
-        public IActionResult UpdateEvent([FromBody]Event @event)
+        [HttpPut("{eventId}")]
+        public async Task<IActionResult> UpdateEventById(Guid eventId, [FromBody]EventCreate @event)
         {
             try
             {
                 if (@event is null)
                 {
                     _logger.LogError("Event object recived from client is null.");
-                    return BadRequest("Null object");
+                    return BadRequest(new { message = "Null object" });
                 }
                 if (!ModelState.IsValid)
                 {
                     _logger.LogError("Event object recived from client is not valid.");
-                    return BadRequest("Invalid object");
+                    return BadRequest(new { message = "Invalid object" });
                 }
 
-                repository.Event.UpdateEvent(@event);
-                repository.Save();
+                var eventResult = await _repository.Event.FindByCondition(x => x.Id == eventId).FirstOrDefaultAsync();
+                if (eventResult is null)
+                {
+                    _logger.LogError("Event object not found.");
+                    return BadRequest("Event not found");
+                }
 
-                return NoContent();
+                eventResult.Description = @event.Description;
+                eventResult.EndRegistration = @event.EndRegistration.SetKindUtc();
+                eventResult.EndEvent = @event.EndEvent.SetKindUtc();
+                eventResult.SumPrice = @event.Sumprice;
+                eventResult.Tracking = @event.Tracking;
+
+                _repository.Event.UpdateEvent(eventResult);
+                await _repository.SaveAsync();
+
+                //return NoContent();
+                return StatusCode(200, "{}");
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Incorrectly passed argument: { ex.Message}.");
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, new { message = "Internal server error" });
+            }
+        }
+
+        [HttpGet("events/{memberId}")]
+        public async Task<IActionResult> GetEventsByMember(Guid userId)
+        {
+            try
+            {
+                var events = _repository.Event.GetEventsByMemberId(userId);
+
+                if (events == null)
+                {
+                    _logger.LogError("Member is not take part one more event");
+                    return BadRequest(new { message = "Events not found" });
+                }
+
+                List<EventView> eventsList = new List<EventView>();
+
+                foreach (var @event in events)
+                {
+                    EventView view = new EventView
+                    {
+                        Id = @event.Id,
+                        Description = @event.Description,
+                        EndRegistration = @event.EndRegistration,
+                        EndEvent = @event.EndEvent,
+                        SumPrice = @event.SumPrice,
+                        Tracking = @event.Tracking
+                    };
+                    eventsList.Add(view);
+                }
+
+                return Ok(eventsList);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Something went wrong inside GetEventsList action: {ex.Message}");
+                return StatusCode(500, new { message = "Internal server error" });
             }
         }
     } 

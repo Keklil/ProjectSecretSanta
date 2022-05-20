@@ -4,6 +4,9 @@
     {
         IEventRepository Event { get; }
         IMemberRepository Member { get; }
-        void Save();
+        IMemberEventRepository MemberEvent { get; }
+        IAddressRepository Address { get; }
+        Task Save();
+        Task SaveAsync();
     }
 }

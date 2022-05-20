@@ -5,6 +5,7 @@ namespace SecretSanta_Backend.Models
 {
     public partial class Address
     {
+        public Guid Id { get; set; }
         public Guid MemberId { get; set; }
         public string PhoneNumber { get; set; } = null!;
         public string Zip { get; set; } = null!;

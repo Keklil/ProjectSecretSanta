@@ -26,9 +26,11 @@ namespace SecretSanta_Backend
         {
             modelBuilder.Entity<Address>(entity =>
             {
-                entity.HasNoKey();
-
                 entity.ToTable("Address");
+
+                entity.Property(e => e.Id)
+                    .ValueGeneratedNever()
+                    .HasColumnName("id");
 
                 entity.Property(e => e.Apartment)
                     .HasMaxLength(5)
@@ -57,7 +59,7 @@ namespace SecretSanta_Backend
                     .HasColumnName("zip");
 
                 entity.HasOne(d => d.Member)
-                    .WithMany()
+                    .WithMany(p => p.Addresses)
                     .HasForeignKey(d => d.MemberId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("fk_Address_Member_1");
@@ -79,11 +81,15 @@ namespace SecretSanta_Backend
 
                 entity.Property(e => e.EndRegistration).HasColumnName("end_registration");
 
-                entity.Property(e => e.Sandfriends)
-                    .HasColumnName("sandfriends")
+                entity.Property(e => e.Reshuffle)
+                    .HasColumnName("reshuffle")
                     .HasDefaultValueSql("false");
 
-                entity.Property(e => e.Sumprice).HasColumnName("sumprice");
+                entity.Property(e => e.SendFriends)
+                    .HasColumnName("send_friends")
+                    .HasDefaultValueSql("false");
+
+                entity.Property(e => e.SumPrice).HasColumnName("sum_price");
 
                 entity.Property(e => e.Tracking)
                     .HasColumnName("tracking")
@@ -110,6 +116,10 @@ namespace SecretSanta_Backend
                     .HasMaxLength(50)
                     .HasColumnName("patronymic");
 
+                entity.Property(e => e.Role)
+                    .HasMaxLength(50)
+                    .HasColumnName("role");
+
                 entity.Property(e => e.Surname)
                     .HasMaxLength(50)
                     .HasColumnName("surname");
@@ -117,9 +127,11 @@ namespace SecretSanta_Backend
 
             modelBuilder.Entity<MemberEvent>(entity =>
             {
-                entity.HasNoKey();
-
                 entity.ToTable("Member_Event");
+
+                entity.Property(e => e.Id)
+                    .ValueGeneratedNever()
+                    .HasColumnName("id");
 
                 entity.Property(e => e.DeliveryService)
                     .HasMaxLength(100)
@@ -137,20 +149,20 @@ namespace SecretSanta_Backend
 
                 entity.Property(e => e.Recipient).HasColumnName("recipient");
 
-                entity.Property(e => e.Sendday).HasColumnName("sendday");
+                entity.Property(e => e.SendDay).HasColumnName("send_day");
 
                 entity.Property(e => e.TrackNumber)
                     .HasMaxLength(100)
                     .HasColumnName("track_number");
 
                 entity.HasOne(d => d.Event)
-                    .WithMany()
+                    .WithMany(p => p.MemberEvents)
                     .HasForeignKey(d => d.EventId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("fk_Member_Event_Event_1");
 
                 entity.HasOne(d => d.Member)
-                    .WithMany()
+                    .WithMany(p => p.MemberEvents)
                     .HasForeignKey(d => d.MemberId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("fk_Member_Event_Member_1");

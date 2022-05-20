@@ -13,6 +13,6 @@ namespace SecretSanta_Backend.ModelsDTO
         public string Street { get; set; } = null!;
         public string? Apartment { get; set; }
 
-        public virtual MemberDTO Member { get; set; } = null!;
+        public virtual MemberView Member { get; set; } = null!;
     }
 }

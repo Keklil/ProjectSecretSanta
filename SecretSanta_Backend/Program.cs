@@ -1,6 +1,9 @@
-using Microsoft.EntityFrameworkCore;
-using Npgsql.EntityFrameworkCore.PostgreSQL;
+using Quartz.Impl;
+using SecretSanta_Backend;
 using SecretSanta_Backend.Configuration;
+using SecretSanta_Backend.Interfaces;
+using SecretSanta_Backend.Jobs;
+using SecretSanta_Backend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,12 +35,20 @@ app.UseDefaultFiles();
 app.UseStaticFiles();
 app.UseRouting();
 
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller}/{action=Index}/{id?}");
+    pattern: "{controller}/{action}/{id?}");
 
 app.UseCors("CorsPolicy");
+
+
+//EventNotificationScheduler.Start();
+//var reshuffleService = new ReshuffleService();
+//await reshuffleService.Reshuffle(new Guid("0ff3d625-af85-4015-a808-e310084ad09b"));
+
 
 app.Run();
