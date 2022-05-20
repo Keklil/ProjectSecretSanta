@@ -29,12 +29,12 @@ namespace SecretSanta_Backend.Controllers
                 if (@event is null)
                 {
                     _logger.LogError("Event object recived from client is null.");
-                    return BadRequest("Null object");
+                    return BadRequest(new { message = "Null object" });
                 }
                 if (!ModelState.IsValid)
                 {
                     _logger.LogError("Event object recived from client is not valid.");
-                    return BadRequest("Invalid object");
+                    return BadRequest(new { message = "Invalid object" });
                 }
 
                 var eventId = Guid.NewGuid();
@@ -57,7 +57,7 @@ namespace SecretSanta_Backend.Controllers
             catch (Exception ex)
             {
                 _logger.LogError($"Something went wrong inside CreateEvent action: {ex.Message}");
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, new { message = "Internal server error" });
             }
         }
 
@@ -72,7 +72,7 @@ namespace SecretSanta_Backend.Controllers
                 if (@event is null)
                 {
                     _logger.LogError($"Event with ID: {eventId} not found");
-                    return BadRequest("Event not found");
+                    return BadRequest(new { message = "Event not found" });
                 }
 
                 _repository.Event.DeleteEvent(@event);
@@ -84,7 +84,7 @@ namespace SecretSanta_Backend.Controllers
             catch (Exception ex)
             {
                 _logger.LogError($"Incorrectly passed ID argument: { ex.Message}.");
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, new { message = "Internal server error" });
             }
         }
 
@@ -94,7 +94,7 @@ namespace SecretSanta_Backend.Controllers
         {
             var events = await _repository.Event.FindAll().ToListAsync();
             if (events is null)
-                return BadRequest("Events does not exist.");
+                return BadRequest(new { message = "Events does not exist." });
 
             List<EventView> eventsList = new List<EventView>();
 
@@ -122,10 +122,10 @@ namespace SecretSanta_Backend.Controllers
             try
             { 
                 if (eventId == Guid.Empty)
-                    return BadRequest("Request argument omitted.");
+                    return BadRequest(new { message = "Request argument omitted." });
                 var @event = await _repository.Event.FindByCondition(x => x.Id == eventId).FirstOrDefaultAsync();
                 if (@event is null)
-                    return BadRequest("Game with this Id does not exist.");
+                    return BadRequest(new { message = "Game with this Id does not exist." });
 
                 var eventCount = await _repository.MemberEvent.FindByCondition(x => x.EventId == eventId).Select(x => x.EventId).CountAsync();
 
@@ -193,7 +193,7 @@ namespace SecretSanta_Backend.Controllers
             catch (Exception ex)
             {
                 _logger.LogError($"Incorrectly passed ID argument: { ex.Message}.");
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, new { message = "Internal server error" });
 
             }
         }
@@ -206,12 +206,12 @@ namespace SecretSanta_Backend.Controllers
                 if (@event is null)
                 {
                     _logger.LogError("Event object recived from client is null.");
-                    return BadRequest("Null object");
+                    return BadRequest(new { message = "Null object" });
                 }
                 if (!ModelState.IsValid)
                 {
                     _logger.LogError("Event object recived from client is not valid.");
-                    return BadRequest("Invalid object");
+                    return BadRequest(new { message = "Invalid object" });
                 }
 
                 var eventResult = await _repository.Event.FindByCondition(x => x.Id == eventId).FirstOrDefaultAsync();
@@ -236,21 +236,21 @@ namespace SecretSanta_Backend.Controllers
             catch (Exception ex)
             {
                 _logger.LogError($"Incorrectly passed argument: { ex.Message}.");
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, new { message = "Internal server error" });
             }
         }
 
         [HttpGet("events/{memberId}")]
-        public async Task<IActionResult> GetEventsByMember(Guid memberId)
+        public async Task<IActionResult> GetEventsByMember(Guid userId)
         {
             try
             {
-                var events = _repository.Event.GetEventsByMemberId(memberId);
+                var events = _repository.Event.GetEventsByMemberId(userId);
 
                 if (events == null)
                 {
                     _logger.LogError("Member is not take part one more event");
-                    return BadRequest("Events not found");
+                    return BadRequest(new { message = "Events not found" });
                 }
 
                 List<EventView> eventsList = new List<EventView>();
@@ -274,7 +274,7 @@ namespace SecretSanta_Backend.Controllers
             catch (Exception ex)
             {
                 _logger.LogError($"Something went wrong inside GetEventsList action: {ex.Message}");
-                return StatusCode(500, "Internal server error");
+                return StatusCode(500, new { message = "Internal server error" });
             }
         }
     } 
