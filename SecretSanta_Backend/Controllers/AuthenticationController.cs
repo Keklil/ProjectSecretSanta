@@ -67,7 +67,7 @@ namespace SecretSanta_Backend.Controllers
 
         private Member ValidMember(MemberLogin data)
         {
-            string ldapServer = "LDAP://ldap.forumsys.com:389/dc=example,dc=com";
+            string ldapServer = _config["LdapServer"];
             var userName = string.Format("uid={0},dc=example,dc=com", data.UserName);
             SearchResult result = null;
             Member member = null;
