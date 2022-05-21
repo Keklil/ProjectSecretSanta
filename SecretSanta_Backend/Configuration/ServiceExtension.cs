@@ -1,11 +1,9 @@
 ﻿using SecretSanta_Backend.Interfaces;
 using SecretSanta_Backend.Repositories;
 using Microsoft.EntityFrameworkCore;
-using Npgsql;
-using SecretSanta_Backend.Services;
-using SecretSanta_Backend.Jobs;
-using Quartz;
-using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace SecretSanta_Backend.Configuration
 {
@@ -38,6 +36,26 @@ namespace SecretSanta_Backend.Configuration
         public static void ConfigurePostgreSqlContext(this IServiceCollection services, IConfiguration config)
         {
             services.AddDbContext<ApplicationContext>(options => options.UseNpgsql(config.GetConnectionString("DefaultConnection")));
+        }
+
+        public static void ConfigureAuthentication(this IServiceCollection services, IConfiguration config)
+        {
+            services.AddAuthentication(options =>
+            {
+                options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.RequireHttpsMetadata = false;
+                options.SaveToken = true;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"])),
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
+            });
         }
     }
 }
