@@ -4,12 +4,13 @@ using SecretSanta_Backend.Models;
 using SecretSanta_Backend.ModelsDTO;
 using SecretSanta_Backend.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SecretSanta_Backend.Controllers
 {
     [ApiController]
     [Route("event")]
-
+    [Authorize(Roles = "admin")]
     public class AdminController : ControllerBase
     {
         private IRepositoryWrapper _repository;
