@@ -5,10 +5,12 @@ using SecretSanta_Backend.Models;
 using SecretSanta_Backend.ModelsDTO;
 using SecretSanta_Backend.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SecretSanta_Backend.Controllers
 {
     [ApiController]
+    [Authorize(Roles = "admin,user")]
     [Route("user")]
     public class MemberController : ControllerBase
     {
@@ -19,47 +21,6 @@ namespace SecretSanta_Backend.Controllers
         {
             _repository = repository;
             _logger = logger;
-        }
-
-        [HttpGet("login")]
-        public async Task<IActionResult> MemberLogin(MemberLogin login)
-        {
-            try
-            {
-                if (login.Email == null)
-                {
-                    _logger.LogError("Member email recived from client is null.");
-                    return BadRequest(new { message = "Null email" });
-                }
-                if (login.Password == null)
-                {
-                    _logger.LogError("Member password recived from client is null.");
-                    return BadRequest(new { message = "Null password" });
-                }
-
-                var member = await _repository.Member.GetMemberByEmailAsync(login.Email);
-                if (member == null)
-                {
-                    _logger.LogInformation("Member recived from client is new.");
-                    // TODO:  Auth method to LDAP
-                    // check user in LDAP-DB, if exist add email to appDB, if not - auth error
-                }
-
-                var memberLogin = new MemberLogin
-                {
-                    Email = login.Email,
-                    Password = login.Password
-                };
-
-                // TODO: Auth method here ->
-                //return NoContent();
-                return StatusCode(200, "{}");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Something went wrong inside CreateMember action: {ex.Message}");
-                return StatusCode(500, new { message = "Internal server error" });
-            }
         }
 
         [HttpGet("{userId}/event/{eventId}")]
