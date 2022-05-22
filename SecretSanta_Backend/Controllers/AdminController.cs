@@ -74,6 +74,11 @@ namespace SecretSanta_Backend.Controllers
                     _logger.LogError($"Event with ID: {eventId} not found");
                     return BadRequest(new { message = "Event not found" });
                 }
+                if (@event.Reshuffle == true)
+                {
+                    _logger.LogError("Registration date has already expired");
+                    return BadRequest(new { message = "Registration date has already expired" });
+                }
 
                 _repository.Event.DeleteEvent(@event);
                 await _repository.SaveAsync();
@@ -90,29 +95,13 @@ namespace SecretSanta_Backend.Controllers
 
 
         [HttpGet("events")]
-        public async Task<ActionResult<EventView>> GetEvents()
+        public async Task<ActionResult<EventViewList>> GetEvents()
         {
-            var events = await _repository.Event.FindAll().ToListAsync();
+            var events = await _repository.Event.FindAll().Select(x => new EventViewList(){Id = x.Id,Description = x.Description}).ToListAsync();
             if (events is null)
                 return BadRequest(new { message = "Events does not exist." });
 
-            List<EventView> eventsList = new List<EventView>();
-
-            foreach (var @event in events)
-            {
-                EventView view = new EventView
-                {
-                    Id = @event.Id,
-                    Description = @event.Description,
-                    EndRegistration = @event.EndRegistration,
-                    EndEvent = @event.EndEvent,
-                    SumPrice = @event.SumPrice,
-                    Tracking = @event.Tracking
-                };
-                eventsList.Add(view);
-            }
-
-            return Ok(eventsList);
+            return Ok(events);
         }
 
 
@@ -214,11 +203,17 @@ namespace SecretSanta_Backend.Controllers
                     return BadRequest(new { message = "Invalid object" });
                 }
 
+
                 var eventResult = await _repository.Event.FindByCondition(x => x.Id == eventId).FirstOrDefaultAsync();
                 if (eventResult is null)
                 {
                     _logger.LogError("Event object not found.");
                     return BadRequest("Event not found");
+                }
+                if (eventResult.Reshuffle == true)
+                {
+                    _logger.LogError("Registration date has already expired");
+                    return BadRequest(new { message = "Registration date has already expired" });
                 }
 
                 eventResult.Description = @event.Description;

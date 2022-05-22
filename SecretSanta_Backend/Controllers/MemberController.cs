@@ -84,7 +84,8 @@ namespace SecretSanta_Backend.Controllers
                     EndEvent = @event.EndEvent,
                     SumPrice = @event.SumPrice,
                     Preference = eventPreferences.Preference,
-                    MembersCount = memberAttendCount
+                    MembersCount = memberAttendCount,
+                    Reshuffle = @event.Reshuffle
                 };
 
                 return Ok(view);
@@ -138,13 +139,19 @@ namespace SecretSanta_Backend.Controllers
             {
                 if (preferences is null)
                 {
-                    _logger.LogError("Wishes object recived from client is null.");
+                    _logger.LogError("Preferences object recived from client is null.");
                     return BadRequest(new { message = "Null object" });
                 }
                 if (!ModelState.IsValid)
                 {
-                    _logger.LogError("Wishes object recived from client is not valid.");
+                    _logger.LogError("Preferences object recived from client is not valid.");
                     return BadRequest(new { message = "Invalid object"});
+                }
+                var @event = await _repository.Event.FindByCondition(x => x.Id == eventId).FirstOrDefaultAsync();
+                if (@event.Reshuffle == true)
+                {
+                    _logger.LogError("Registration date has already expired");
+                    return BadRequest(new { message = "Registration date has already expired" });
                 }
 
                 Member member = await _repository.Member.GetMemberByIdAsync(userId);
@@ -209,6 +216,12 @@ namespace SecretSanta_Backend.Controllers
                     _logger.LogError("Wishes object recived from client is not valid.");
                     return BadRequest(new { message = "Invalid object" });
                 }
+                var @event = await _repository.Event.FindByCondition(x => x.Id == eventId).FirstOrDefaultAsync();
+                if (@event.Reshuffle == true)
+                {
+                    _logger.LogError("Registration date has already expired");
+                    return BadRequest(new { message = "Registration date has already expired" });
+                }
 
                 Member member = await _repository.Member.GetMemberByIdAsync(userId);
                 var address = await _repository.Address.FindByCondition(x => x.MemberId == userId).FirstOrDefaultAsync();
@@ -248,6 +261,12 @@ namespace SecretSanta_Backend.Controllers
         {
             try
             {
+                var @event = await _repository.Event.FindByCondition(x => x.Id == eventId).FirstOrDefaultAsync();
+                if (@event.Reshuffle == true)
+                {
+                    _logger.LogError("Registration date has already expired");
+                    return BadRequest(new { message = "Registration date has already expired" });
+                }
                 var member = await _repository.MemberEvent.FindByCondition(x => x.MemberId == userId && x.EventId == eventId).FirstOrDefaultAsync();
                 if (member is null)
                 {
