@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SecretSanta_Backend.ModelsDTO;
+using System;
 using System.Collections.Generic;
 
 namespace SecretSanta_Backend.Models
@@ -12,5 +13,14 @@ namespace SecretSanta_Backend.Models
         public int? SumPrice { get; set; }
         public bool? SendFriends { get; set; }
         public bool? Tracking { get; set; }
+        public bool? Reshuffle { get; set; }
+        public int? MembersCount { get; set; }
+        public List<MemberViewAdmin>? MemberView { get; set; }
+    }
+    public class MemberViewAdmin
+    {
+        public MemberView? MemberView { get; set; }
+        public MemberView? MemberRecipient { get; set; }
+        public MemberView? MemberSender { get; set; }
     }
 }
