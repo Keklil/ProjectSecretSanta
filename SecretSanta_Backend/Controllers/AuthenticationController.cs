@@ -53,10 +53,10 @@ namespace SecretSanta_Backend.Controllers
                     _logger.LogInformation("Member recived from client is new.");
                     _repository.Member.Create(checkedMember);
                     await _repository.SaveAsync();
+                    return Ok(new { Token = GenerateJwtToken(checkedMember), Message = "Success" });
                 }
-
-                var tokenString = GenerateJwtToken(checkedMember);
-                return Ok(new { Token = tokenString, Message = "Success" });
+                return Ok(new { Token = GenerateJwtToken(memberWithEmail.First()), 
+                    Message = "Success" });
             }
             catch (Exception ex)
             {
