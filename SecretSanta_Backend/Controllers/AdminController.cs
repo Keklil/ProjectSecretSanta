@@ -174,6 +174,7 @@ namespace SecretSanta_Backend.Controllers
                     EndEvent = @event.EndEvent,
                     SumPrice = @event.SumPrice,
                     Tracking = @event.Tracking,
+                    Reshuffle = @event.Reshuffle,
                     MembersCount = eventCount,
                     MemberView = memberViewAdminList
                 };
