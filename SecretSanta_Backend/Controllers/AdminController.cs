@@ -22,6 +22,11 @@ namespace SecretSanta_Backend.Controllers
             _repository = repository;
         }
 
+        /// <summary>
+        /// Создать новую игру.
+        /// </summary>
+        /// <param name="event"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<IActionResult> CreateEvent([FromBody] EventCreate @event)
         {
@@ -63,7 +68,11 @@ namespace SecretSanta_Backend.Controllers
             }
         }
 
-
+        /// <summary>
+        /// Удалить игру.
+        /// </summary>
+        /// <param name="eventId"></param>
+        /// <returns></returns>
         [HttpDelete("{eventId}")]
         public async Task<IActionResult> DeleteEvent(Guid eventId)
         {
@@ -95,7 +104,10 @@ namespace SecretSanta_Backend.Controllers
             }
         }
 
-
+        /// <summary>
+        /// Получить список существующих игр.
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("events")]
         public async Task<ActionResult<EventViewList>> GetEvents()
         {
@@ -106,7 +118,11 @@ namespace SecretSanta_Backend.Controllers
             return Ok(events);
         }
 
-
+        /// <summary>
+        /// Получить информацию об игре.
+        /// </summary>
+        /// <param name="eventId"></param>
+        /// <returns></returns>
         [HttpGet("{eventId}")]
         public async Task<ActionResult<EventView>> GetEventById(Guid eventId)
         {
@@ -190,6 +206,12 @@ namespace SecretSanta_Backend.Controllers
             }
         }
 
+        /// <summary>
+        /// Редактировать данные игры.
+        /// </summary>
+        /// <param name="eventId"></param>
+        /// <param name="event"></param>
+        /// <returns></returns>
         [HttpPut("{eventId}")]
         public async Task<IActionResult> UpdateEventById(Guid eventId, [FromBody]EventCreate @event)
         {
@@ -238,6 +260,11 @@ namespace SecretSanta_Backend.Controllers
             }
         }
 
+        /// <summary>
+        /// Получить список игр, в которых участвует пользователь.
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         [HttpGet("events/{memberId}")]
         public async Task<IActionResult> GetEventsByMember(Guid userId)
         {
