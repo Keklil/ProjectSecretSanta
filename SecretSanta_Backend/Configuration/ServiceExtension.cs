@@ -67,8 +67,7 @@ namespace SecretSanta_Backend.Configuration
                 options.SwaggerDoc("v1", new OpenApiInfo
                 {
                     Version = "v1",
-                    Title = "Secret Santa API",
-                    Description = "API to get statistics on the number of letters in the first five posts on a personal Vk page."
+                    Title = "Secret Santa API"
                 });
                 options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {

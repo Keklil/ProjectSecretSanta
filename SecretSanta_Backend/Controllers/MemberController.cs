@@ -22,7 +22,13 @@ namespace SecretSanta_Backend.Controllers
             _repository = repository;
             _logger = logger;
         }
-
+        /// <summary>
+        /// Возвращает информацию об игре для конкретного пользователя.
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="eventId"></param>
+        /// <returns>Описание игры, дату окончания регистрации, дату последнего дня отправки посылки, примерную стоимость подарка,
+        /// указанные предпочтения, количество участников в этой игре, статус проведения распределения участников.</returns>
         [HttpGet("{userId}/event/{eventId}")]
         public async Task<ActionResult<MemberEventView>> GetEventInfo(Guid userId, Guid eventId)
         {
@@ -57,7 +63,12 @@ namespace SecretSanta_Backend.Controllers
                 return StatusCode(500, new { message = "Internal server error" });
             }
         }
-
+        /// <summary>
+        /// Возвращает данные пользователя, необходимые для участия в игре.
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="eventId"></param>
+        /// <returns>ФИО, адрес, предпочтения</returns>
         [HttpGet("{userId}/preferences/{eventId}")]
         public async Task<ActionResult<Preferences>> GetPreferences(Guid userId, Guid eventId)
         {
@@ -92,7 +103,14 @@ namespace SecretSanta_Backend.Controllers
                 return StatusCode(500, new { message = "Internal server error" });
             }
         }
-
+        
+        /// <summary>
+        /// Запись данных пользователя, необходимы для участия в игре.
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="eventId"></param>
+        /// <param name="preferences"></param>
+        /// <returns></returns>
         [HttpPost("{userId}/preferences/{eventId}")]
         public async Task<IActionResult> SendPreferences(Guid userId, Guid eventId, [FromBody] Preferences preferences)
         {
@@ -161,7 +179,14 @@ namespace SecretSanta_Backend.Controllers
                 return StatusCode(500, new { message = "Internal server error" });
             }
         }
-
+        
+        /// <summary>
+        /// Редактировать данные пользователя, необходимые для участия в игре.
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="eventId"></param>
+        /// <param name="preferences"></param>
+        /// <returns></returns>
         [HttpPut("{userId}/preferences/{eventId}")]
         public async Task<IActionResult> UpdateWishes(Guid userId, Guid eventId, [FromBody] Preferences preferences)
         {
@@ -217,6 +242,12 @@ namespace SecretSanta_Backend.Controllers
             }
         }
 
+        /// <summary>
+        /// Отказаться от участия в игре.
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="eventId"></param>
+        /// <returns></returns>
         [HttpPut("{userId}/exit/{eventId}")]
         public async Task<IActionResult> MemberLeaveEvent(Guid userId, Guid eventId)
         {
@@ -249,6 +280,12 @@ namespace SecretSanta_Backend.Controllers
             }
         }
 
+        /// <summary>
+        /// Получить данные о получателе подарка.
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="eventId"></param>
+        /// <returns></returns>
         [HttpGet("{userId}/event/{eventId}/recipientInfo")]
         public async Task<ActionResult<GiftFromMe>> GetPlaceOfDelivery(Guid userId, Guid eventId)
         {
@@ -296,6 +333,11 @@ namespace SecretSanta_Backend.Controllers
             }
         }
 
+        /// <summary>
+        /// Получить общие данные о пользователе.
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         [HttpGet("{userId}")]
         public async Task<ActionResult<MemberView>> GetMemberById(Guid userId)
         {
