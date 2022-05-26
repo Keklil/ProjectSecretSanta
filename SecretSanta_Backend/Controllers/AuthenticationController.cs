@@ -107,6 +107,7 @@ namespace SecretSanta_Backend.Controllers
             {
                 Subject = new ClaimsIdentity(new Claim[]
                 {
+                    new Claim("UserID", member.Id.ToString()),
                     new Claim(ClaimTypes.Email, member.Email.ToString()),
                     new Claim(ClaimTypes.Role, member.Role.ToString())
                 }),
