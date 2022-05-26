@@ -47,7 +47,8 @@ namespace SecretSanta_Backend.Controllers
                     EndRegistration = @event.EndRegistration.SetKindUtc(),
                     SumPrice = @event.Sumprice,
                     SendFriends = @event.Sendfriends,
-                    Tracking = @event.Tracking
+                    Tracking = @event.Tracking,
+                    Reshuffle = false
                 };
 
                 _repository.Event.CreateEvent(eventResult);
