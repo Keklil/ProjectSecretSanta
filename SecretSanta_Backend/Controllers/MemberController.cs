@@ -42,6 +42,11 @@ namespace SecretSanta_Backend.Controllers
                 }
 
                 var eventPreferences = await _repository.MemberEvent.FindByCondition(x => x.MemberId == userId && x.EventId == eventId).FirstOrDefaultAsync();
+                if (eventPreferences is null)
+                {
+                    _logger.LogError("Prefernces object is null.");
+                    return BadRequest(new { message = "Preferences not found" });
+                }
                 var memberAttendCount = await _repository.MemberEvent.FindByCondition(x => x.EventId == eventId).CountAsync();
 
                 MemberEventView view = new MemberEventView
@@ -86,13 +91,13 @@ namespace SecretSanta_Backend.Controllers
                 Preferences wishes = new Preferences
                 {
                     Name = member.Surname + " " + member.Name + " " + member.Patronymic,
-                    PhoneNumber = address.PhoneNumber,
-                    Zip = address.Zip,
-                    Region = address.Region,
-                    City = address.City,
-                    Street = address.Street,
-                    Apartment = address.Apartment,
-                    Preference = preferences
+                    PhoneNumber = address != null ? address.PhoneNumber : null,
+                    Zip = address != null ? address.Zip : null,
+                    Region = address != null ? address.Region : null,
+                    City = address != null ? address.City : null,
+                    Street = address != null ? address.Street : null,
+                    Apartment = address != null ? address.Apartment : null,
+                    Preference = preferences != null ? preferences : null
                 };
 
                 return Ok(wishes);
