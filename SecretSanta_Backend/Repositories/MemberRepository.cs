@@ -13,11 +13,11 @@ namespace SecretSanta_Backend.Repositories
 
         public async Task<Member> GetMemberByIdAsync(Guid id)
         {
-            return await FindByCondition(member => member.Id.Equals(id)).FirstAsync();
+            return await FindByCondition(member => member.Id.Equals(id)).FirstOrDefaultAsync();
         }
         public async Task<Member> GetMemberByEmailAsync(string email)
         {
-            return await FindByCondition(member => member.Email.Equals(email)).FirstAsync();
+            return await FindByCondition(member => member.Email.Equals(email)).FirstOrDefaultAsync();
         }
         public void CreateMember(Member member) => Create(member);
         public void UpdateMember(Member member) => Update(member);

@@ -37,8 +37,8 @@ namespace SecretSanta_Backend.Controllers
                 var @event = await _repository.Event.FindByCondition(x => x.Id == eventId).FirstOrDefaultAsync();
                 if (@event is null)
                 {
-                    _logger.LogError("Event object is null.");
-                    return BadRequest(new { message = "Event not found" });
+                    _logger.LogError("Event doesn't exist.");
+                    return BadRequest(new { message = "Event doesn't exist" });
                 }
 
                 var eventPreferences = await _repository.MemberEvent.FindByCondition(x => x.MemberId == userId && x.EventId == eventId).FirstOrDefaultAsync();
@@ -75,7 +75,7 @@ namespace SecretSanta_Backend.Controllers
         /// <param name="eventId"></param>
         /// <returns>ФИО, адрес, предпочтения</returns>
         [HttpGet("{userId}/preferences/{eventId}")]
-        public async Task<ActionResult<Preferences>> GetPreferences(Guid userId, Guid eventId)
+        public async Task<ActionResult<PreferencesView>> GetPreferences(Guid userId, Guid eventId)
         {
             try
             {
@@ -88,7 +88,7 @@ namespace SecretSanta_Backend.Controllers
                 var address = await _repository.Address.FindByCondition(x => x.MemberId == userId).FirstOrDefaultAsync();
                 var preferences = await _repository.MemberEvent.FindByCondition(x => x.MemberId == userId && x.EventId == eventId).Select(x => x.Preference).FirstOrDefaultAsync();
 
-                Preferences wishes = new Preferences
+                PreferencesView wishes = new PreferencesView
                 {
                     Name = member.Surname + " " + member.Name + " " + member.Patronymic,
                     PhoneNumber = address != null ? address.PhoneNumber : null,
@@ -117,7 +117,7 @@ namespace SecretSanta_Backend.Controllers
         /// <param name="preferences"></param>
         /// <returns></returns>
         [HttpPost("{userId}/preferences/{eventId}")]
-        public async Task<IActionResult> SendPreferences(Guid userId, Guid eventId, [FromBody] Preferences preferences)
+        public async Task<IActionResult> SendPreferences(Guid userId, Guid eventId, [FromBody] PreferencesPost preferences)
         {
             try
             {
@@ -132,6 +132,11 @@ namespace SecretSanta_Backend.Controllers
                     return BadRequest(new { message = "Invalid object"});
                 }
                 var @event = await _repository.Event.FindByCondition(x => x.Id == eventId).FirstOrDefaultAsync();
+                if (@event is null)
+                {
+                    _logger.LogError("Event doesn't exist.");
+                    return BadRequest(new { message = "Event doesn't exist" });
+                }
                 if (@event.Reshuffle == true)
                 {
                     _logger.LogError("Registration date has already expired");
@@ -193,7 +198,7 @@ namespace SecretSanta_Backend.Controllers
         /// <param name="preferences"></param>
         /// <returns></returns>
         [HttpPut("{userId}/preferences/{eventId}")]
-        public async Task<IActionResult> UpdateWishes(Guid userId, Guid eventId, [FromBody] Preferences preferences)
+        public async Task<IActionResult> UpdateWishes(Guid userId, Guid eventId, [FromBody] PreferencesPost preferences)
         {
             try
             {
@@ -208,6 +213,11 @@ namespace SecretSanta_Backend.Controllers
                     return BadRequest(new { message = "Invalid object" });
                 }
                 var @event = await _repository.Event.FindByCondition(x => x.Id == eventId).FirstOrDefaultAsync();
+                if (@event is null)
+                {
+                    _logger.LogError("Event doesn't exist.");
+                    return BadRequest(new { message = "Event doesn't exist" });
+                }
                 if (@event.Reshuffle == true)
                 {
                     _logger.LogError("Registration date has already expired");
@@ -259,6 +269,11 @@ namespace SecretSanta_Backend.Controllers
             try
             {
                 var @event = await _repository.Event.FindByCondition(x => x.Id == eventId).FirstOrDefaultAsync();
+                if (@event is null)
+                {
+                    _logger.LogError($"Event doesn't exist");
+                    return BadRequest(new { message = "Event doesn't exist" });
+                }
                 if (@event.Reshuffle == true)
                 {
                     _logger.LogError("Registration date has already expired");
@@ -306,7 +321,7 @@ namespace SecretSanta_Backend.Controllers
                 else
                 {
                     Member recipient = await _repository.Member.GetMemberByIdAsync((Guid)recipientId);
-                    var preferences = await _repository.MemberEvent.FindByCondition(x => x.MemberId == (Guid)recipientId && x.EventId == eventId).Select(x => x.Preference).FirstAsync();
+                    var preferences = await _repository.MemberEvent.FindByCondition(x => x.MemberId == (Guid)recipientId && x.EventId == eventId).Select(x => x.Preference).FirstOrDefaultAsync();
                     Address recipientAddress = await _repository.Address.FindByCondition(x => x.MemberId == (Guid)recipientId).FirstAsync();
 
                     if (recipientAddress.Apartment is null)
@@ -314,7 +329,7 @@ namespace SecretSanta_Backend.Controllers
                         GiftFromMe giftFromMe = new GiftFromMe
                         {
                             Name = recipient.Surname + " " + recipient.Name + " " + recipient.Surname,
-                            Preferences = preferences,
+                            Preferences = preferences != null ? preferences : null,
                             Address = recipientAddress.Zip + ", " + recipientAddress.Region + ", " + recipientAddress.City + ", " + recipientAddress.Street + ", тел. " + recipientAddress.PhoneNumber
                         };
                         return Ok(giftFromMe);
@@ -324,7 +339,7 @@ namespace SecretSanta_Backend.Controllers
                         GiftFromMe giftFromMe = new GiftFromMe
                         {
                             Name = recipient.Surname + " " + recipient.Name + " " + recipient.Surname,
-                            Preferences = preferences,
+                            Preferences = preferences != null ? preferences : null,
                             Address = recipientAddress.Zip + ", " + recipientAddress.Region + ", " + recipientAddress.City + ", " + recipientAddress.Street + ", кв. " + recipientAddress.Apartment + ", тел. " + recipientAddress.PhoneNumber
                         };
                         return Ok(giftFromMe);

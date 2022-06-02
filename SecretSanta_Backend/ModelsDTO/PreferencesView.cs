@@ -1,6 +1,6 @@
 ﻿namespace SecretSanta_Backend.ModelsDTO
 {
-    public class Preferences
+    public class PreferencesView
     {
         public string? Name { get; set; }
         public string? PhoneNumber { get; set; }
