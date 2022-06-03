@@ -198,7 +198,7 @@ namespace SecretSanta_Backend.Controllers
         /// <param name="preferences"></param>
         /// <returns></returns>
         [HttpPut("{userId}/preferences/{eventId}")]
-        public async Task<IActionResult> UpdateWishes(Guid userId, Guid eventId, [FromBody] PreferencesPost preferences)
+        public async Task<IActionResult> UpdatePreferences(Guid userId, Guid eventId, [FromBody] PreferencesPost preferences)
         {
             try
             {
@@ -227,6 +227,11 @@ namespace SecretSanta_Backend.Controllers
                 Member member = await _repository.Member.GetMemberByIdAsync(userId);
                 var address = await _repository.Address.FindByCondition(x => x.MemberId == userId).FirstOrDefaultAsync();
                 var memberEvent = await _repository.MemberEvent.FindByCondition(x => x.MemberId == userId && x.EventId == eventId).FirstOrDefaultAsync();
+                if (memberEvent is null)
+                {
+                    _logger.LogError("Member does not participate in the event");
+                    return BadRequest(new { message = "Member does not participate in the event" });
+                }
 
                 string[] words = preferences.Name.Split(' ');
                 member.Surname = words[0];
@@ -252,7 +257,7 @@ namespace SecretSanta_Backend.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Something went wrong inside SendWishes action: {ex.Message}");
+                _logger.LogError($"Something went wrong inside UpdatePreferences action: {ex.Message}");
                 return StatusCode(500, new { message = "Internal server error" });
             }
         }
