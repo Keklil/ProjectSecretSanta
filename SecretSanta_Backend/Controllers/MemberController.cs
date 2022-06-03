@@ -149,6 +149,7 @@ namespace SecretSanta_Backend.Controllers
                 }
 
                 Member member = await _repository.Member.GetMemberByIdAsync(userId);
+                var addressSearch = await _repository.Address.FindByCondition(x => x.MemberId == userId).FirstOrDefaultAsync();
 
                 if (member.Name is null || member.Surname is null || member.Patronymic is null)
                 {
@@ -160,17 +161,31 @@ namespace SecretSanta_Backend.Controllers
                     _repository.Member.UpdateMember(member);
                 }
 
-                Address address = new Address
+                if (addressSearch is null)
                 {
-                    Id = Guid.NewGuid(),
-                    MemberId = member.Id,
-                    PhoneNumber = preferences.PhoneNumber,
-                    Zip = preferences.Zip,
-                    Region = preferences.Region,
-                    City = preferences.City,
-                    Street = preferences.Street,
-                    Apartment = preferences.Apartment
-                };
+                    Address address = new Address
+                    {
+                        Id = Guid.NewGuid(),
+                        MemberId = member.Id,
+                        PhoneNumber = preferences.PhoneNumber,
+                        Zip = preferences.Zip,
+                        Region = preferences.Region,
+                        City = preferences.City,
+                        Street = preferences.Street,
+                        Apartment = preferences.Apartment
+                    };
+                    _repository.Address.CreateAddress(address);
+                }
+                else
+                {
+                    addressSearch.PhoneNumber = preferences.PhoneNumber != null ? preferences.PhoneNumber : addressSearch.PhoneNumber;
+                    addressSearch.Zip = preferences.Zip != null ? preferences.Zip : addressSearch.Zip;
+                    addressSearch.Region = preferences.Region != null ? preferences.Region : addressSearch.Region;
+                    addressSearch.City = preferences.City != null ? preferences.City : addressSearch.City;
+                    addressSearch.Street = preferences.Street != null ? preferences.Street : addressSearch.Street;
+                    addressSearch.Apartment = preferences.Apartment != null ? preferences.Apartment : addressSearch.Apartment;
+                    _repository.Address.Update(addressSearch);
+                }
 
                 MemberEvent memberEvent = new MemberEvent
                 {
@@ -182,7 +197,6 @@ namespace SecretSanta_Backend.Controllers
                 };
 
                 _repository.MemberEvent.CreateMemberEvent(memberEvent);
-                _repository.Address.CreateAddress(address);
                 _repository.MemberEvent.CreateMemberEvent(memberEvent);
                 await _repository.SaveAsync();
 
