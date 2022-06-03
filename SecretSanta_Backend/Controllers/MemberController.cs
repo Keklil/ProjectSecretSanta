@@ -42,10 +42,10 @@ namespace SecretSanta_Backend.Controllers
                 }
 
                 var eventPreferences = await _repository.MemberEvent.FindByCondition(x => x.MemberId == userId && x.EventId == eventId).FirstOrDefaultAsync();
-                if (eventPreferences is null)
+                if (eventPreferences is null || eventPreferences.MemberAttend is false)
                 {
                     _logger.LogError("Prefernces object is null.");
-                    return BadRequest(new { message = "Preferences not found" });
+                    return BadRequest(new { message = "Member does not participate in the event" });
                 }
                 var memberAttendCount = await _repository.MemberEvent.FindByCondition(x => x.EventId == eventId).CountAsync();
 
@@ -86,7 +86,12 @@ namespace SecretSanta_Backend.Controllers
                     return BadRequest(new { message = "Member not found" });
                 }
                 var address = await _repository.Address.FindByCondition(x => x.MemberId == userId).FirstOrDefaultAsync();
-                var preferences = await _repository.MemberEvent.FindByCondition(x => x.MemberId == userId && x.EventId == eventId).Select(x => x.Preference).FirstOrDefaultAsync();
+                var preferences = await _repository.MemberEvent.FindByCondition(x => x.MemberId == userId && x.EventId == eventId).FirstOrDefaultAsync();
+                if (preferences is null || preferences.MemberAttend is false)
+                {
+                    _logger.LogError("Prefernces object is null.");
+                    return BadRequest(new { message = "Member does not participate in the event" });
+                }
 
                 PreferencesView wishes = new PreferencesView
                 {
@@ -97,7 +102,7 @@ namespace SecretSanta_Backend.Controllers
                     City = address != null ? address.City : null,
                     Street = address != null ? address.Street : null,
                     Apartment = address != null ? address.Apartment : null,
-                    Preference = preferences != null ? preferences : null
+                    Preference = preferences != null ? preferences.Preference : null
                 };
 
                 return Ok(wishes);
@@ -285,10 +290,10 @@ namespace SecretSanta_Backend.Controllers
                     return BadRequest(new { message = "Registration date has already expired" });
                 }
                 var member = await _repository.MemberEvent.FindByCondition(x => x.MemberId == userId && x.EventId == eventId).FirstOrDefaultAsync();
-                if (member is null)
+                if (member is null || member.MemberAttend is false)
                 {
                     _logger.LogError($"Member object not found");
-                    return BadRequest(new { message = "Member not found" });
+                    return BadRequest(new { message = "Member does not participate in the event" });
                 }
 
                 member.MemberAttend = false;
