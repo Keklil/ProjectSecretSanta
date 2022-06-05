@@ -107,9 +107,13 @@ namespace SecretSanta_Backend.Controllers
                     Preference = preferences != null ? preferences.Preference : null
                 };
 
-                if (preferences is null || preferences.MemberAttend is false)
+                if (preferences is null)
                 {
-                    return Ok(new { wishes, message = "Member does not participate in the event until now" });
+                    return Ok(new { wishes, message = "Member joins for the first time" });
+                }
+                if (preferences.MemberAttend is false)
+                {
+                    return Ok(new { wishes, message = "Member has already left the game" });
                 }
                 return Ok(new { wishes, message = "Member participates" });
             }
