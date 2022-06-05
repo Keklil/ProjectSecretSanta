@@ -265,12 +265,13 @@ namespace SecretSanta_Backend.Controllers
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>
-        [HttpGet("events/{memberId}")]
+        [HttpGet("events/{userId}")]
         public async Task<IActionResult> GetEventsByMember(Guid userId)
         {
             try
             {
-                var events = _repository.Event.GetEventsByMemberId(userId);
+                var events = await _repository.MemberEvent.FindByCondition(x => x.MemberId == userId).Include(x => x.Event).ToListAsync();
+
 
                 if (events == null)
                 {
@@ -278,18 +279,20 @@ namespace SecretSanta_Backend.Controllers
                     return BadRequest(new { message = "Events not found" });
                 }
 
-                List<EventView> eventsList = new List<EventView>();
+                List<EventsByMember> eventsList = new List<EventsByMember>();
 
                 foreach (var @event in events)
                 {
-                    EventView view = new EventView
+
+                    EventsByMember view = new EventsByMember
                     {
                         Id = @event.Id,
-                        Description = @event.Description,
-                        EndRegistration = @event.EndRegistration,
-                        EndEvent = @event.EndEvent,
-                        SumPrice = @event.SumPrice,
-                        Tracking = @event.Tracking
+                        Description = @event.Event.Description,
+                        EndRegistration = @event.Event.EndRegistration,
+                        EndEvent = @event.Event.EndEvent,
+                        SumPrice = @event.Event.SumPrice,
+                        Tracking = @event.Event.Tracking,
+                        Attend = @event.MemberAttend
                     };
                     eventsList.Add(view);
                 }

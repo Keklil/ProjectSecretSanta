@@ -54,16 +54,20 @@ namespace SecretSanta_Backend.Controllers
                     return BadRequest(new { message = "Wrong login or password" });
                 }
 
-                var memberWithEmail = await _repository.Member.FindByCondition(x => x.Email == checkedMember.Email).ToListAsync();
-                if (memberWithEmail.Count == 0)
+                var memberWithEmail = await _repository.Member.FindByCondition(x => x.Email == checkedMember.Email).FirstOrDefaultAsync();
+                if (memberWithEmail is null)
                 {
                     _logger.LogInformation("Member recived from client is new.");
                     _repository.Member.Create(checkedMember);
                     await _repository.SaveAsync();
                     return Ok(new { Token = GenerateJwtToken(checkedMember), Message = "Success" });
                 }
-                return Ok(new { Token = GenerateJwtToken(memberWithEmail.First()), 
-                    Message = "Success" });
+                else
+                {
+                    return Ok(new { Token = GenerateJwtToken(memberWithEmail), 
+                        Message = "Success" });
+                }
+
             }
             catch (Exception ex)
             {
