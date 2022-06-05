@@ -1,6 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using SecretSanta_Backend.Interfaces;
-using SecretSanta_Backend.Models;
 using SecretSanta_Backend.Repositories;
 
 namespace SecretSanta_Backend.Services
@@ -8,7 +6,6 @@ namespace SecretSanta_Backend.Services
     public class ReshuffleService
     {
         private RepositoryWrapper repository;
-        public bool IsReshuffleSuccessful = false;
         private List<Guid> participants = new List<Guid>();
         private Dictionary<Guid, Guid> assignedPairs = new Dictionary<Guid, Guid>();
 
@@ -33,8 +30,10 @@ namespace SecretSanta_Backend.Services
                 MakePairsWithPairs();
             else
                 MakePairsWithoutPairs();
-            IsReshuffleSuccessful = true;
             await SaveReshuffle();
+            @event.Reshuffle = true;
+            repository.Event.Update(@event);
+            await repository.SaveAsync();
         }
 
 
@@ -91,7 +90,9 @@ namespace SecretSanta_Backend.Services
             {
                 var participant = await repository.MemberEvent.FindByCondition(x => x.MemberId == assignedPair.Key).SingleAsync();
                 participant.Recipient = assignedPair.Key;
+                repository.MemberEvent.Update(participant);
             }
+            await repository.SaveAsync();
         }
     }
 }

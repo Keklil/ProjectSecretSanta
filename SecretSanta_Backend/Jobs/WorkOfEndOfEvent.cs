@@ -18,8 +18,14 @@ namespace SecretSanta_Backend.Jobs
                 if (@event.EndRegistration == DateTime.Today)
                     if (@event.Reshuffle == false)
                     {
-                        await mailService.sendEmailsWithDesignatedRecipient(@event.Id);
-                        await reshuffleService.Reshuffle(@event.Id);
+                        try
+                        {
+                            await mailService.sendEmailsWithDesignatedRecipient(@event.Id);
+                            await reshuffleService.Reshuffle(@event.Id);
+                        }
+                        catch (Exception ex)
+                        {
+                        }
                     }            
         }
     }

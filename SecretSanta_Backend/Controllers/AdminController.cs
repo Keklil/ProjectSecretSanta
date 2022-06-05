@@ -4,12 +4,13 @@ using SecretSanta_Backend.Models;
 using SecretSanta_Backend.ModelsDTO;
 using SecretSanta_Backend.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SecretSanta_Backend.Controllers
 {
     [ApiController]
     [Route("event")]
-
+    [Authorize(Roles = "admin")]
     public class AdminController : ControllerBase
     {
         private IRepositoryWrapper _repository;
@@ -21,6 +22,11 @@ namespace SecretSanta_Backend.Controllers
             _repository = repository;
         }
 
+        /// <summary>
+        /// Создать новую игру.
+        /// </summary>
+        /// <param name="event"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<IActionResult> CreateEvent([FromBody] EventCreate @event)
         {
@@ -46,7 +52,8 @@ namespace SecretSanta_Backend.Controllers
                     EndRegistration = @event.EndRegistration.SetKindUtc(),
                     SumPrice = @event.Sumprice,
                     SendFriends = @event.Sendfriends,
-                    Tracking = @event.Tracking
+                    Tracking = @event.Tracking,
+                    Reshuffle = false
                 };
 
                 _repository.Event.CreateEvent(eventResult);
@@ -61,7 +68,11 @@ namespace SecretSanta_Backend.Controllers
             }
         }
 
-
+        /// <summary>
+        /// Удалить игру.
+        /// </summary>
+        /// <param name="eventId"></param>
+        /// <returns></returns>
         [HttpDelete("{eventId}")]
         public async Task<IActionResult> DeleteEvent(Guid eventId)
         {
@@ -73,6 +84,11 @@ namespace SecretSanta_Backend.Controllers
                 {
                     _logger.LogError($"Event with ID: {eventId} not found");
                     return BadRequest(new { message = "Event not found" });
+                }
+                if (@event.Reshuffle == true)
+                {
+                    _logger.LogError("Registration date has already expired");
+                    return BadRequest(new { message = "Registration date has already expired" });
                 }
 
                 _repository.Event.DeleteEvent(@event);
@@ -88,34 +104,25 @@ namespace SecretSanta_Backend.Controllers
             }
         }
 
-
+        /// <summary>
+        /// Получить список существующих игр.
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("events")]
-        public async Task<ActionResult<EventView>> GetEvents()
+        public async Task<ActionResult<EventViewList>> GetEvents()
         {
-            var events = await _repository.Event.FindAll().ToListAsync();
+            var events = await _repository.Event.FindAll().Select(x => new EventViewList(){Id = x.Id,Description = x.Description}).ToListAsync();
             if (events is null)
                 return BadRequest(new { message = "Events does not exist." });
 
-            List<EventView> eventsList = new List<EventView>();
-
-            foreach (var @event in events)
-            {
-                EventView view = new EventView
-                {
-                    Id = @event.Id,
-                    Description = @event.Description,
-                    EndRegistration = @event.EndRegistration,
-                    EndEvent = @event.EndEvent,
-                    SumPrice = @event.SumPrice,
-                    Tracking = @event.Tracking
-                };
-                eventsList.Add(view);
-            }
-
-            return Ok(eventsList);
+            return Ok(events);
         }
 
-
+        /// <summary>
+        /// Получить информацию об игре.
+        /// </summary>
+        /// <param name="eventId"></param>
+        /// <returns></returns>
         [HttpGet("{eventId}")]
         public async Task<ActionResult<EventView>> GetEventById(Guid eventId)
         {
@@ -183,6 +190,7 @@ namespace SecretSanta_Backend.Controllers
                     EndEvent = @event.EndEvent,
                     SumPrice = @event.SumPrice,
                     Tracking = @event.Tracking,
+                    Reshuffle = @event.Reshuffle,
                     MembersCount = eventCount,
                     MemberView = memberViewAdminList
                 };
@@ -198,6 +206,12 @@ namespace SecretSanta_Backend.Controllers
             }
         }
 
+        /// <summary>
+        /// Редактировать данные игры.
+        /// </summary>
+        /// <param name="eventId"></param>
+        /// <param name="event"></param>
+        /// <returns></returns>
         [HttpPut("{eventId}")]
         public async Task<IActionResult> UpdateEventById(Guid eventId, [FromBody]EventCreate @event)
         {
@@ -214,11 +228,17 @@ namespace SecretSanta_Backend.Controllers
                     return BadRequest(new { message = "Invalid object" });
                 }
 
+
                 var eventResult = await _repository.Event.FindByCondition(x => x.Id == eventId).FirstOrDefaultAsync();
                 if (eventResult is null)
                 {
                     _logger.LogError("Event object not found.");
                     return BadRequest("Event not found");
+                }
+                if (eventResult.Reshuffle == true)
+                {
+                    _logger.LogError("Registration date has already expired");
+                    return BadRequest(new { message = "Registration date has already expired" });
                 }
 
                 eventResult.Description = @event.Description;
@@ -240,6 +260,11 @@ namespace SecretSanta_Backend.Controllers
             }
         }
 
+        /// <summary>
+        /// Получить список игр, в которых участвует пользователь.
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
         [HttpGet("events/{memberId}")]
         public async Task<IActionResult> GetEventsByMember(Guid userId)
         {

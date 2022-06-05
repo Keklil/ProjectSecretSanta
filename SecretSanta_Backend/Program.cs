@@ -1,3 +1,4 @@
+using Microsoft.OpenApi.Models;
 using Quartz.Impl;
 using SecretSanta_Backend;
 using SecretSanta_Backend.Configuration;
@@ -14,10 +15,11 @@ builder.Services.ConfigureCors();
 builder.Services.ConfigurePostgreSqlContext(builder.Configuration);
 builder.Services.ConfigureRepositoryWrapper();
 builder.Services.ConfigureIISIntegration();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.ConfigureAuthentication(builder.Configuration);
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.ConfigureSwagger();
 builder.Services.AddAutoMapper(typeof(Program));
+
 
 var app = builder.Build();
 
@@ -46,9 +48,6 @@ app.MapControllerRoute(
 app.UseCors("CorsPolicy");
 
 
-//EventNotificationScheduler.Start();
-//var reshuffleService = new ReshuffleService();
-//await reshuffleService.Reshuffle(new Guid("0ff3d625-af85-4015-a808-e310084ad09b"));
-
+EventNotificationScheduler.Start();
 
 app.Run();

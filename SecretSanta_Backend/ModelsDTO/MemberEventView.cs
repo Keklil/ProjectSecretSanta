@@ -8,6 +8,7 @@
         public int? SumPrice { get; set; }
         public string? Preference { get; set; }
         public DateTime? SendDay { get; set; }
-        public int MembersCount { get; set; } 
+        public int MembersCount { get; set; }
+        public bool? Reshuffle { get; set; }
     }
 }
