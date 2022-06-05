@@ -47,7 +47,7 @@ namespace SecretSanta_Backend.Controllers
                     _logger.LogError("Prefernces object is null.");
                     return BadRequest(new { message = "Member does not participate in the event" });
                 }
-                var memberAttendCount = await _repository.MemberEvent.FindByCondition(x => x.EventId == eventId).CountAsync();
+                var memberAttendCount = await _repository.MemberEvent.FindByCondition(x => x.EventId == eventId).Where(x => x.MemberAttend == true).CountAsync();
 
                 MemberEventView view = new MemberEventView
                 {
@@ -111,7 +111,7 @@ namespace SecretSanta_Backend.Controllers
                 {
                     return Ok(new { wishes, message = "Member does not participate in the event until now" });
                 }
-                return Ok(wishes);
+                return Ok(new { wishes, message = "Member participates" });
             }
             catch (Exception ex)
             {

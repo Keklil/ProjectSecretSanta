@@ -134,7 +134,7 @@ namespace SecretSanta_Backend.Controllers
                 if (@event is null)
                     return BadRequest(new { message = "Game with this Id does not exist." });
 
-                var eventCount = await _repository.MemberEvent.FindByCondition(x => x.EventId == eventId).Select(x => x.EventId).CountAsync();
+                var eventCount = await _repository.MemberEvent.FindByCondition(x => x.EventId == eventId).Where(x => x.MemberAttend == true).CountAsync();
 
                 var eventsMember = await _repository.MemberEvent.FindByCondition(x => x.EventId == eventId).ToListAsync();
                 

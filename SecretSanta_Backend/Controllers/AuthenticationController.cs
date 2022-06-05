@@ -64,8 +64,7 @@ namespace SecretSanta_Backend.Controllers
                 }
                 else
                 {
-                    return Ok(new { Token = GenerateJwtToken(memberWithEmail), 
-                        Message = "Success" });
+                    return Ok(new { Token = GenerateJwtToken(memberWithEmail), Message = "Success" });
                 }
 
             }
