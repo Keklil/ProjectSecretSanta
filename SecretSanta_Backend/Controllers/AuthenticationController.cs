@@ -71,7 +71,7 @@ namespace SecretSanta_Backend.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Something went wrong inside CreateMember action: {ex.Message}");
+                _logger.LogError($"Something went wrong inside Auth action: {ex.Message}");
                 return StatusCode(500, "Internal server error");
             }
         }
@@ -104,8 +104,8 @@ namespace SecretSanta_Backend.Controllers
                 }
                 catch (Exception ex)
                 {
+                    _logger.LogError($"Something went wrong inside ValidMember action: {ex.Message}");
                     return null;
-                    Console.WriteLine(ex.Message);
                 }
             };
             return member;
