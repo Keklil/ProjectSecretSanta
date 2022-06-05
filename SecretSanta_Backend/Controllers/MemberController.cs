@@ -97,7 +97,7 @@ namespace SecretSanta_Backend.Controllers
                     City = address != null ? address.City : null,
                     Street = address != null ? address.Street : null,
                     Apartment = address != null ? address.Apartment : null,
-                    Preference = preferences != null ? preferences : null
+                    Preference = preferences != null ? preferences.Preference : null
                 };
 
                 if (preferences is null)
