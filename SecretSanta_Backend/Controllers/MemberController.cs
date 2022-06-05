@@ -107,7 +107,7 @@ namespace SecretSanta_Backend.Controllers
                     Preference = preferences != null ? preferences.Preference : null
                 };
 
-                if (preferences is null)
+                if (preferences is null || preferences.MemberAttend is false)
                 {
                     return Ok(new { wishes, message = "Member does not participate in the event until now" });
                 }
@@ -249,7 +249,7 @@ namespace SecretSanta_Backend.Controllers
                 Member member = await _repository.Member.GetMemberByIdAsync(userId);
                 var address = await _repository.Address.FindByCondition(x => x.MemberId == userId).FirstOrDefaultAsync();
                 var memberEvent = await _repository.MemberEvent.FindByCondition(x => x.MemberId == userId && x.EventId == eventId).FirstOrDefaultAsync();
-                if (memberEvent is null)
+                if (memberEvent is null || memberEvent.MemberAttend is false)
                 {
                     _logger.LogError("Member does not participate in the event");
                     return BadRequest(new { message = "Member does not participate in the event" });
