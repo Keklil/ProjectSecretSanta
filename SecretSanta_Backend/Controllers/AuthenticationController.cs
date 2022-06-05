@@ -47,6 +47,13 @@ namespace SecretSanta_Backend.Controllers
                 }
 
                 var checkedMember = ValidMember(data);
+
+                if (checkedMember is null)
+                {
+                    _logger.LogError("Wrong login or password.");
+                    return BadRequest(new { message = "Wrong login or password" });
+                }
+
                 var memberWithEmail = await _repository.Member.FindByCondition(x => x.Email == checkedMember.Email).ToListAsync();
                 if (memberWithEmail.Count == 0)
                 {
@@ -65,7 +72,7 @@ namespace SecretSanta_Backend.Controllers
             }
         }
 
-        private Member ValidMember(MemberLogin data)
+        private Member? ValidMember(MemberLogin data)
         {
             string ldapServer = _config["LdapServer"];
             var userName = string.Format("uid={0},dc=example,dc=com", data.UserName);
@@ -86,13 +93,14 @@ namespace SecretSanta_Backend.Controllers
                         Id = Guid.NewGuid(),
                         Name = name,
                         Surname = surname,
-                        Patronymic = "no patronymic",
+                        Patronymic = " ",
                         Email = email,
                         Role = "user"                                                       
                     };
                 }
                 catch (Exception ex)
                 {
+                    return null;
                     Console.WriteLine(ex.Message);
                 }
             };

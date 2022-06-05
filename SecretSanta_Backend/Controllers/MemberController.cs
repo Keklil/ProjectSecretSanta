@@ -86,12 +86,7 @@ namespace SecretSanta_Backend.Controllers
                     return BadRequest(new { message = "Member not found" });
                 }
                 var address = await _repository.Address.FindByCondition(x => x.MemberId == userId).FirstOrDefaultAsync();
-                var preferences = await _repository.MemberEvent.FindByCondition(x => x.MemberId == userId && x.EventId == eventId).FirstOrDefaultAsync();
-                if (preferences is null || preferences.MemberAttend is false)
-                {
-                    _logger.LogError("Prefernces object is null.");
-                    return BadRequest(new { message = "Member does not participate in the event" });
-                }
+                var preferences = await _repository.MemberEvent.FindByCondition(x => x.MemberId == userId && x.EventId == eventId).Select(x => x.Preference).FirstOrDefaultAsync();
 
                 PreferencesView wishes = new PreferencesView
                 {
@@ -102,10 +97,10 @@ namespace SecretSanta_Backend.Controllers
                     City = address != null ? address.City : null,
                     Street = address != null ? address.Street : null,
                     Apartment = address != null ? address.Apartment : null,
-                    Preference = preferences != null ? preferences.Preference : null
+                    Preference = preferences != null ? preferences : null
                 };
 
-                return Ok(wishes);
+                return Ok(new { wishes, message = "Member does not participate in the event until now" });
             }
             catch (Exception ex)
             {
@@ -151,15 +146,11 @@ namespace SecretSanta_Backend.Controllers
                 Member member = await _repository.Member.GetMemberByIdAsync(userId);
                 var addressSearch = await _repository.Address.FindByCondition(x => x.MemberId == userId).FirstOrDefaultAsync();
 
-                if (member.Name is null || member.Surname is null || member.Patronymic is null)
-                {
-                    string[] words = preferences.Name.Split(' ');
+                string[] words = preferences.Name.Split(' ');
+                member.Surname = words[0];
+                member.Name = words[1];
+                member.Patronymic = words[2];
 
-                    member.Surname = words[0];
-                    member.Name = words[1];
-                    member.Surname = words[2];
-                    _repository.Member.UpdateMember(member);
-                }
 
                 if (addressSearch is null)
                 {
@@ -184,7 +175,7 @@ namespace SecretSanta_Backend.Controllers
                     addressSearch.City = preferences.City != null ? preferences.City : addressSearch.City;
                     addressSearch.Street = preferences.Street != null ? preferences.Street : addressSearch.Street;
                     addressSearch.Apartment = preferences.Apartment != null ? preferences.Apartment : addressSearch.Apartment;
-                    _repository.Address.Update(addressSearch);
+                    _repository.Address.UpdateAddress(addressSearch);
                 }
 
                 MemberEvent memberEvent = new MemberEvent
@@ -196,6 +187,7 @@ namespace SecretSanta_Backend.Controllers
                     Preference = preferences.Preference
                 };
 
+                _repository.Member.UpdateMember(member);
                 _repository.MemberEvent.CreateMemberEvent(memberEvent);
                 _repository.MemberEvent.CreateMemberEvent(memberEvent);
                 await _repository.SaveAsync();
@@ -255,7 +247,7 @@ namespace SecretSanta_Backend.Controllers
                 string[] words = preferences.Name.Split(' ');
                 member.Surname = words[0];
                 member.Name = words[1];
-                member.Surname = words[2];
+                member.Patronymic = words[2];
 
                 address.PhoneNumber = preferences.PhoneNumber;
                 address.Zip = preferences.Zip;
