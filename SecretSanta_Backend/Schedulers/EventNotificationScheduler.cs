@@ -15,10 +15,9 @@ namespace SecretSanta_Backend.Jobs
 
             ITrigger trigger = TriggerBuilder.Create() 
                 .WithIdentity("trigger1", "group1")   
-                .StartNow()
-                //.StartAt(DateBuilder.TodayAt(12, 0, 0))
+                .StartAt(DateBuilder.TodayAt(12, 0, 0))
                 .WithSimpleSchedule(x => x
-                    .WithIntervalInHours(24)
+                    .WithIntervalInHours(12)
                     .RepeatForever())                  
                 .Build();                             
 
