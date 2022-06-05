@@ -85,6 +85,13 @@ namespace SecretSanta_Backend.Controllers
                     _logger.LogError("Member object is null.");
                     return BadRequest(new { message = "Member not found" });
                 }
+                var @event = await _repository.Event.FindByCondition(x => x.Id == eventId).FirstOrDefaultAsync();
+                if (@event is null)
+                {
+                    _logger.LogError("Member object is null.");
+                    return BadRequest(new { message = "Event doesn't exist" });
+                }
+
                 var address = await _repository.Address.FindByCondition(x => x.MemberId == userId).FirstOrDefaultAsync();
                 var preferences = await _repository.MemberEvent.FindByCondition(x => x.MemberId == userId && x.EventId == eventId).FirstOrDefaultAsync();
 
