@@ -136,7 +136,7 @@ namespace SecretSanta_Backend.Controllers
 
                 var eventCount = await _repository.MemberEvent.FindByCondition(x => x.EventId == eventId).Where(x => x.MemberAttend == true).CountAsync();
 
-                var eventsMember = await _repository.MemberEvent.FindByCondition(x => x.EventId == eventId).ToListAsync();
+                var eventsMember = await _repository.MemberEvent.FindByCondition(x => x.EventId == eventId).Where(x => x.MemberAttend == true).ToListAsync();
                 
                 List<MemberViewAdmin> memberViewAdminList = new List<MemberViewAdmin>();
                 foreach(var eventMember in eventsMember)
