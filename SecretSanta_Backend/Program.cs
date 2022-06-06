@@ -49,5 +49,10 @@ app.UseCors("CorsPolicy");
 
 
 EventNotificationScheduler.Start();
+//var mailService = new MailService();
+//var reshuffleService = new ReshuffleService();
+//var eventId = new Guid();
+//await mailService.sendEmailsWithDesignatedRecipient(eventId);
+//await reshuffleService.Reshuffle(eventId);
 
 app.Run();
