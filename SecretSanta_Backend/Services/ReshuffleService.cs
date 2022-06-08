@@ -18,7 +18,7 @@ namespace SecretSanta_Backend.Services
 
         public async Task Reshuffle(Guid eventId)
         {
-            var @event = await repository.Event.FindAll().Where(x => x.Id == eventId).SingleAsync();
+            var @event = await repository.Event.FindByCondition(x => x.Id == eventId).FirstOrDefaultAsync();
             participants = await repository.MemberEvent.FindAll()
                 .Where(x => x.EventId == eventId && x.MemberAttend == true)
                 .Select(x => x.MemberId)
@@ -30,8 +30,10 @@ namespace SecretSanta_Backend.Services
                 MakePairsWithPairs();
             else
                 MakePairsWithoutPairs();
-            await SaveReshuffle();
+            await SaveReshuffle(eventId);
             @event.Reshuffle = true;
+            @event.EndRegistration = @event.EndRegistration.SetKindUtc();
+            @event.EndEvent = @event.EndEvent.SetKindUtc();
             repository.Event.Update(@event);
             await repository.SaveAsync();
         }
@@ -84,12 +86,12 @@ namespace SecretSanta_Backend.Services
         }
 
 
-        private async Task SaveReshuffle()
+        private async Task SaveReshuffle(Guid eventId)
         {
             foreach (var assignedPair in assignedPairs)
             {
-                var participant = await repository.MemberEvent.FindByCondition(x => x.MemberId == assignedPair.Key).SingleAsync();
-                participant.Recipient = assignedPair.Key;
+                var participant = await repository.MemberEvent.FindByCondition(x => x.MemberId == assignedPair.Key && x.EventId == eventId).FirstOrDefaultAsync();
+                participant.Recipient = assignedPair.Value;
                 repository.MemberEvent.Update(participant);
             }
             await repository.SaveAsync();

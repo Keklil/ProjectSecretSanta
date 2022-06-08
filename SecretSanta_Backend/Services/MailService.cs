@@ -52,13 +52,13 @@ namespace SecretSanta_Backend.Services
 
         private async Task<MailMessage> CreateDesignatedRecipientMessage(string email, Guid eventId, Guid memberId)
         {
-            var recommendedSum = await repository.Event.FindByCondition(x => x.Id == eventId).Select(x => x.SumPrice).SingleAsync();
-            var endOfEvent = await repository.MemberEvent.FindByCondition(x => x.MemberId == memberId).Select(x => x.SendDay).SingleAsync();
-            var recipientId = await repository.MemberEvent.FindByCondition(x => x.MemberId == memberId && x.EventId == eventId).Select(x => x.Recipient).SingleAsync();
-            var recipient = await repository.Member.FindByCondition(x => x.Id == recipientId).SingleAsync();
-            var recipientInEvent = await repository.MemberEvent.FindByCondition(x => x.MemberId == recipientId && x.EventId == eventId).SingleAsync();
-            var preference = recipientInEvent.Preference;
-            var address = await repository.Address.FindByCondition(x => x.MemberId == recipientId).SingleAsync();
+            var recommendedSum = await repository.Event.FindByCondition(x => x.Id == eventId).Select(x => x.SumPrice).FirstOrDefaultAsync();
+            var endOfEvent = await repository.MemberEvent.FindByCondition(x => x.MemberId == memberId).Select(x => x.SendDay).FirstOrDefaultAsync();
+            var recipientId = await repository.MemberEvent.FindByCondition(x => x.MemberId == memberId && x.EventId == eventId).Select(x => x.Recipient).FirstOrDefaultAsync();
+            var recipient = await repository.Member.FindByCondition(x => x.Id == recipientId).FirstOrDefaultAsync();
+            var recipientInEvent = await repository.MemberEvent.FindByCondition(x => x.MemberId == recipientId && x.EventId == eventId).FirstOrDefaultAsync();
+            var preference = recipientInEvent != null ? recipientInEvent.Preference : null;
+            var address = await repository.Address.FindByCondition(x => x.MemberId == recipientId).FirstOrDefaultAsync();
             MailMessage message = new MailMessage("secret-santa-test@mail.ru", email);
             message.Subject = "Распределение получателей подарков в игре Secret Santa подошло к концу.";
             message.Body = CreateDesignatedRecipientMailBody(recipient, preference, address, endOfEvent, recommendedSum);

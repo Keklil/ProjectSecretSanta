@@ -50,4 +50,5 @@ app.UseCors("CorsPolicy");
 
 EventNotificationScheduler.Start();
 
+
 app.Run();
