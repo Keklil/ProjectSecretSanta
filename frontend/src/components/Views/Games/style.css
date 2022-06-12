@@ -1,0 +1,29 @@
+.games_view {
+  /* height: 85%; */
+  /* padding: 1% 2%; */
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  /* margin: 64px; */
+  /* background: #ffffff; */
+  /* background-color: rgb(255, 255, 255, 0.6); */
+  /* border-radius: 30px; */
+}
+
+.games {
+  font-weight: 700px;
+  font-size: 40px;
+  line-height: 68px;
+  letter-spacing: 0.1em;
+  color: #1d71b8;
+}
+
+.games_button {
+  background-color: #ffa755;
+  border-radius: 15px;
+  color: #ffffff;
+  border: none;
+  padding: 8px 14px;
+  font-size: 24px;
+  letter-spacing: 0.04em;
+}

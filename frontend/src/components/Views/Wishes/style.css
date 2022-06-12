@@ -1,0 +1,76 @@
+.wishes_content {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.wishes_content__title {
+  font-size: 40px;
+  font-weight: 700;
+  color: #1d71b8;
+  height: 10%;
+}
+
+.wishes_content__form {
+  padding-top: 2%;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 85%;
+}
+
+.wishes_content__btns_group {
+  display: flex;
+  margin-bottom: 5%;
+}
+
+.wishes_content__inputs_group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 5%;
+  margin-bottom: 2%;
+}
+
+.wishes_content__group_item {
+  width: 100%;
+  /* display: flex; */
+  /* align-items: flex-end; */
+}
+
+.wishes_content_save_btn_wrapper {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.wishes_content_save_btn {
+  margin-top: 2%;
+  align-self: flex-end;
+  bottom: 0;
+}
+
+/* Планшет */
+@media screen and (max-width: 991px) {
+  .wishes_content__form {
+    width: 97%;
+  }
+
+  .wishes_content__title {
+    font-size: 24px;
+  }
+}
+
+@media screen and (max-width: 479px) {
+  .wishes_content__form {
+    width: 85%;
+  }
+
+  .wishes_content__title {
+    font-size: 34px;
+  }
+
+  .wishes_content__inputs_group {
+    grid-template-columns: 1fr;
+    grid-gap: 0%;
+    margin-bottom: 0%;
+  }
+}

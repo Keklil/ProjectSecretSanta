@@ -1,0 +1,67 @@
+.home_view {
+  height: 90%;
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  background-image: url('../../../assets/woman.png');
+  background-repeat: no-repeat;
+  background-position: right 10% center;
+}
+
+.home_view span {
+  font-size: 5rem;
+  padding: 5% 2%;
+  text-transform: uppercase;
+  font-weight: 600;
+  filter: brightness();
+  background: linear-gradient(90.98deg, #78bdee -11.86%, #1d71b8 110.95%);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: 0.04em;
+}
+
+.home_view span::before {
+  content: 'Тайный';
+  position: absolute;
+  top: -40%;
+  left: 5%;
+  text-transform: uppercase;
+  color: transparent;
+  -webkit-text-stroke: 0.4px #999;
+  font-size: 10rem;
+  letter-spacing: 0.1em;
+}
+
+.home_view span::after {
+  content: 'Санта';
+  position: absolute;
+  bottom: -40%;
+  left: 5%;
+  text-transform: uppercase;
+  color: transparent;
+  -webkit-text-stroke: 0.4px #999;
+  font-size: 10rem;
+  letter-spacing: 0.1em;
+}
+
+.home_view__btn_create,
+.home_view__btn_games {
+  padding: 0.8% 2% !important;
+  font-size: 24px;
+
+  text-decoration: none;
+}
+
+.home_view__btn_create {
+  position: absolute;
+  /* padding: 0.8% 2%; */
+  top: 85%;
+  left: 13.5%;
+}
+
+.home_view__btn_games {
+  position: absolute;
+  top: 85%;
+  left: 33%;
+}

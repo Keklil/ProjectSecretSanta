@@ -1,4 +1,5 @@
 ﻿using SecretSanta_Backend.Interfaces;
+using SecretSanta_Backend.Services;
 using SecretSanta_Backend.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -33,6 +34,11 @@ namespace SecretSanta_Backend.Configuration
         public static void ConfigureRepositoryWrapper(this IServiceCollection services)
         {
             services.AddScoped<IRepositoryWrapper, RepositoryWrapper>();
+        }
+
+        public static void ConfigureAuthService(this IServiceCollection services)
+        {
+            services.AddTransient<AuthService>();
         }
 
         public static void ConfigurePostgreSqlContext(this IServiceCollection services, IConfiguration config)

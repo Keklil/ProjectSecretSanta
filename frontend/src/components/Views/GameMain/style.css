@@ -1,0 +1,79 @@
+.game_main_content {
+  height: 100%;
+  padding: 1% 5%;
+  overflow-y: auto;
+}
+
+.info_card__group {
+  display: grid;
+  /* display: flex; */
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-gap: 2rem;
+  /* justify-content: space-between; */
+}
+
+.game_main_content__my_wishes {
+  margin: 3% 0;
+}
+
+.game_main_content__edit_wishes_btn {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.game_main_content__my_wishes_text {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
+  color: #4295de;
+}
+
+.game_main_content__players {
+  display: grid;
+  grid-gap: 12px;
+  grid-template-columns: repeat(auto-fill, 90px);
+  margin-top: 1%;
+}
+
+@media screen and (max-width: 991px) {
+  .info_card__group {
+    grid-template-columns: 1fr 1fr;
+    grid-gap: 3rem 6rem;
+    padding: 0 4rem;
+  }
+
+  .game_main_content__my_wishes_text {
+    font-size: 14px;
+  }
+}
+
+@media screen and (max-width: 479px) {
+  .info_card__group {
+    margin: 0 2%;
+    grid-gap: 0.5rem 1.5rem;
+    padding: 10px 0;
+  }
+
+  .game_main_content__my_wishes {
+    margin-top: 24px;
+  }
+
+  .game_main_content__players {
+    margin-top: 32px;
+  }
+}
+/* 
+@media screen and (orientation: landscape) {
+  .info_card__group {
+    grid-template-columns: repeat(4, 1fr);
+    grid-gap: 8px;
+    padding: 0;
+  }
+
+  .game_main_content__players {
+    margin-left: -5%;
+    margin-top: -5%;
+    grid-gap: 48px;
+  }
+} */

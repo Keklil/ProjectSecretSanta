@@ -1,0 +1,38 @@
+version: '3.4'
+
+services:
+  secretsanta_backend:
+    build:
+      context: .
+      dockerfile: SecretSanta_Backend/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:5000
+    ports:
+      - "5000:5000"
+    #  - "5001:5001"
+    depends_on:
+      - postgres
+  postgres:
+    image: postgres:14.1
+    restart: always
+    environment:
+      - POSTGRES_DB=mydbname
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - ./volumes/data/db:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+  front:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+       - '3000:80'
+    image: 'sample:prod'
+    depends_on:
+      - secretsanta_backend
+    #links:
+       #- secretsanta_backend:secretsanta_backend

@@ -12,10 +12,11 @@ namespace SecretSanta_Backend.Models
         }
 
         public Guid Id { get; set; }
+        public string Login { get; set; } = null!;
         public string Name { get; set; } = null!;
         public string Surname { get; set; } = null!;
         public string Patronymic { get; set; } = null!;
-        public string Email { get; set; } = null!;
+        public string? Email { get; set; }
         public string? Role { get; set; }
 
         public virtual ICollection<Address> Addresses { get; set; }

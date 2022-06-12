@@ -18,6 +18,7 @@ builder.Services.ConfigureIISIntegration();
 builder.Services.ConfigureAuthentication(builder.Configuration);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.ConfigureSwagger();
+builder.Services.ConfigureAuthService();
 builder.Services.AddAutoMapper(typeof(Program));
 
 
@@ -32,6 +33,9 @@ if (app.Environment.IsDevelopment())
 else
     app.UseHsts();
 
+app.UseHsts();
+app.UseSwagger();
+app.UseSwaggerUI();
 app.UseHttpsRedirection();
 app.UseDefaultFiles();
 app.UseStaticFiles();

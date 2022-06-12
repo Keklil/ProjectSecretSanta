@@ -1,0 +1,85 @@
+.authorization_wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.authorization_box {
+  width: 25%;
+  height: 50%;
+  margin-bottom: 2.5%;
+  padding: 2%;
+  background-color: #ffffff;
+  border-radius: 30px;
+  opacity: 0.96;
+}
+
+.authorization_box::after {
+  content: url('../../../assets/gift.png');
+  position: absolute;
+  top: 24%;
+  left: 35%;
+}
+
+.authorization_box::before {
+  content: url('../../../assets/snowman_1.png');
+  position: absolute;
+  top: 66%;
+  left: 59%;
+}
+
+.authorization_title {
+  display: flex;
+  justify-content: center;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #1d71b8;
+  font-size: 46px;
+}
+
+.constituents_of_authorization {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 5%;
+  gap: 14px;
+}
+
+.login_components {
+  width: 70%;
+}
+
+.password_components {
+  width: 70%;
+}
+
+.btn_join {
+  width: 70%;
+}
+
+.block {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  /* padding: 2.5% 0; */
+  font-weight: 700;
+  font-feature-settings: 'calt' off;
+  color: #4295de;
+}
+
+.input_text {
+  width: 100%;
+  padding: 4%;
+  margin-top: 2%;
+  background: #ffffff;
+  border: 1px solid #b1ddff;
+  border-radius: 6px;
+}
+
+.auth__log_in {
+  width: 100%;
+}

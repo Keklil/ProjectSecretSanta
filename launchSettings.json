@@ -1,0 +1,13 @@
+{
+  "profiles": {
+    "Docker Compose": {
+      "commandName": "DockerCompose",
+      "commandVersion": "1.0",
+      "serviceActions": {
+        "secretsanta_backend": "StartWithoutDebugging",
+        "front": "StartWithoutDebugging",
+        "postgres": "StartWithoutDebugging"
+      }
+    }
+  }
+}

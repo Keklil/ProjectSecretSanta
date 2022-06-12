@@ -1,0 +1,5 @@
+.eslintrc
+.eslintignore
+.firebase
+node_modules
+build

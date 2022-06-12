@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using SecretSanta_Backend.Interfaces;
 using SecretSanta_Backend.Models;
 using SecretSanta_Backend.ModelsDTO;
+using SecretSanta_Backend.Services;
 using System.ComponentModel.DataAnnotations;
 using System.DirectoryServices;
 using System.IdentityModel.Tokens.Jwt;
@@ -18,15 +19,17 @@ namespace SecretSanta_Backend.Controllers
     public class AuthenticationController : Controller
     {
         private IRepositoryWrapper _repository;
+        private AuthService _authService;
         private readonly IConfiguration _config;
         private readonly ILogger<AdminController> _logger;
 
-        public AuthenticationController(ILogger<AdminController> logger, IConfiguration configuration, 
-            IRepositoryWrapper repository)
+        public AuthenticationController(ILogger<AdminController> logger, IConfiguration configuration,
+            IRepositoryWrapper repository, AuthService authService)
         {
             _logger = logger;
             _config = configuration;
             _repository = repository;
+            _authService = authService;
         }
 
         [AllowAnonymous]
@@ -46,28 +49,41 @@ namespace SecretSanta_Backend.Controllers
                     return BadRequest("Null password");
                 }
 
-                var checkedMember = ValidMember(data);
+                var checkedMember = _authService.ValidUser(data);
 
-                if (checkedMember is null)
+                if (checkedMember is false)
                 {
                     _logger.LogError("Wrong login or password.");
                     return BadRequest(new { message = "Wrong login or password" });
                 }
 
-                var memberWithEmail = await _repository.Member.FindByCondition(x => x.Email == checkedMember.Email).ToListAsync();
-                if (memberWithEmail.Count == 0)
+                Member member = new Member
+                {
+                    Id = Guid.NewGuid(),
+                    Login = data.UserName,
+                    Name = "",
+                    Surname = "",
+                    Patronymic = "",
+                    Role = "user"
+                };
+
+                var memberWithEmail = await _repository.Member.FindByCondition(x => x.Login == data.UserName).FirstOrDefaultAsync();
+                if (memberWithEmail is null)
                 {
                     _logger.LogInformation("Member recived from client is new.");
-                    _repository.Member.Create(checkedMember);
+                    _repository.Member.Create(member);
                     await _repository.SaveAsync();
-                    return Ok(new { Token = GenerateJwtToken(checkedMember), Message = "Success" });
+                    return Ok(new { Token = GenerateJwtToken(member), Message = "Success" });
                 }
-                return Ok(new { Token = GenerateJwtToken(memberWithEmail.First()), 
-                    Message = "Success" });
+                else
+                {
+                    return Ok(new { Token = GenerateJwtToken(memberWithEmail), Message = "Success" });
+                }
+
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Something went wrong inside CreateMember action: {ex.Message}");
+                _logger.LogError($"Something went wrong inside Auth action: {ex.Message}");
                 return StatusCode(500, "Internal server error");
             }
         }
@@ -89,19 +105,20 @@ namespace SecretSanta_Backend.Controllers
                     var email = result.Properties["mail"][0].ToString();
                     var name = result.Properties["cn"][0].ToString();
                     var surname = result.Properties["sn"][0].ToString();
-                    member = new Member {
+                    member = new Member
+                    {
                         Id = Guid.NewGuid(),
                         Name = name,
                         Surname = surname,
                         Patronymic = " ",
                         Email = email,
-                        Role = "user"                                                       
+                        Role = "user"
                     };
                 }
                 catch (Exception ex)
                 {
+                    _logger.LogError($"Something went wrong inside ValidMember action: {ex.Message}");
                     return null;
-                    Console.WriteLine(ex.Message);
                 }
             };
             return member;
@@ -116,7 +133,7 @@ namespace SecretSanta_Backend.Controllers
                 Subject = new ClaimsIdentity(new Claim[]
                 {
                     new Claim("UserID", member.Id.ToString()),
-                    new Claim(ClaimTypes.Email, member.Email.ToString()),
+                    //new Claim(ClaimTypes.Email, member.Email.ToString()),
                     new Claim(ClaimTypes.Role, member.Role.ToString())
                 }),
                 Expires = DateTime.UtcNow.AddHours(1),

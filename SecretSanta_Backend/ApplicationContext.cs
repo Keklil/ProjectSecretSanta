@@ -123,6 +123,10 @@ namespace SecretSanta_Backend
                 entity.Property(e => e.Surname)
                     .HasMaxLength(50)
                     .HasColumnName("surname");
+
+                entity.Property(e => e.Login)
+                    .HasMaxLength(100)
+                    .HasColumnName("login");
             });
 
             modelBuilder.Entity<MemberEvent>(entity =>

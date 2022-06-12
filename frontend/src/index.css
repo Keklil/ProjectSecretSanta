@@ -1,0 +1,410 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+}
+
+#root {
+  height: 100%;
+  background-image: url('./assets/background.png');
+  background-size: cover;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.main_header {
+  height: 10%;
+  display: flex;
+  justify-content: space-between;
+  overflow: hidden;
+  /* margin-bottom: 20px; */
+}
+
+.main_header__logo {
+  padding: 1% 1% 0;
+  height: 100%;
+}
+.main_header__logo svg {
+  height: 100%;
+}
+
+.main_header__sign_up {
+  position: relative;
+  width: 10%;
+  height: 80%;
+  padding: 20px 20px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.main_header__sign_up:hover span {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.main_header__sign_up span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  color: #4295de;
+  font-size: 26px;
+  z-index: 1;
+}
+
+.main_header__sign_up::after {
+  position: absolute;
+  content: '';
+  width: 100%;
+  height: 200%;
+  top: -80%;
+  right: 0;
+  background: linear-gradient(241.84deg, #cadae1 10.53%, #ebecee 82.8%);
+  border-radius: 75px;
+  transform: rotate(-12.33deg);
+}
+
+.main_content {
+  height: 90%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.main_content__layout {
+  height: 90%;
+  width: 100%;
+  padding: 1% 2%;
+  margin: 3%;
+  background: #ffffff;
+  background-color: rgb(255, 255, 255, 0.6);
+  border-radius: 30px;
+}
+
+.main_content__layout_header {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+}
+
+.default__btn {
+  font-size: 20px;
+  padding: 0.5rem 0.6rem;
+  border: 1px solid #ffa755;
+  border-radius: 0.5rem;
+  background-color: #ffa755;
+  color: white;
+}
+
+.default__btn:hover {
+  background-color: #ff9533;
+  border: 1px solid #723e0d;
+}
+
+.default__error {
+  color: red;
+  font-size: 0.7rem;
+}
+
+.default_input__label {
+  font-size: 16px;
+  color: #4295de;
+  font-weight: 700;
+}
+
+.default_input {
+  margin-top: 0.2rem;
+  width: 100%;
+  height: 3rem;
+  background-color: white;
+  border: 1px solid #b1ddff;
+  border-radius: 0.6rem;
+  outline: none;
+  padding: 0 15px;
+}
+
+.default_input::placeholder {
+  color: #cbcbcb;
+}
+
+.default_player_card {
+  border: 1px solid #b1ddff;
+  border-radius: 7px;
+  width: 100px;
+  height: 100px;
+  background-color: white;
+}
+
+.default_player_card__image {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80%;
+}
+
+.default_player_card__image img {
+  width: 80%;
+  height: 80%;
+}
+
+.default_player_card__name {
+  height: 20%;
+  font-size: 16px;
+  color: #4295de;
+  text-align: center;
+  overflow: hidden;
+}
+
+.default_info_card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #b1ddff;
+  border-radius: 10px;
+  height: 110px;
+  width: 100%;
+  /* height: 100%; */
+  /* width: 200px; */
+  /* height: 110px; */
+  color: #1d71b8;
+  background-color: white;
+}
+
+.default_info_card__title {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 70%;
+  font-size: 48px;
+}
+
+.default_info_card__description {
+  height: 30%;
+  font-size: 0.9rem;
+  text-align: center;
+  padding-bottom: 5px;
+}
+
+.default_back_btn {
+  stroke: #ffa755;
+}
+
+.default_back_btn:hover {
+  fill: #ffa755;
+  stroke: #723e0d;
+}
+
+.main_content__layout_header {
+  max-height: 10%;
+}
+
+.main_content_layout_content {
+  padding: 1%;
+  height: 90%;
+}
+
+/* admin buttons style */
+
+.create_button {
+  background-color: #ffa755;
+  border-radius: 7px;
+  color: #ffffff;
+  border: none;
+  font-size: 24px;
+  letter-spacing: 0.04em;
+}
+
+.games_button {
+  background-color: #ffa755;
+  border-radius: 7px;
+  color: #ffffff;
+  border: none;
+  font-size: 24px;
+  letter-spacing: 0.04em;
+}
+
+.loader_wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.loader_wrapper span {
+  font-size: 1.3rem;
+  color: #4295de;
+}
+
+/* Планшет */
+@media screen and (max-width: 991px) {
+  .default_info_card__title {
+    font-size: 24px;
+  }
+  .default_info_card__description {
+    font-size: 10px;
+  }
+
+  .default_player_card__name {
+    font-size: 12px;
+  }
+
+  .main_header__logo {
+    padding: 1% 1% 0;
+  }
+
+  .default_input {
+    height: 2rem;
+  }
+
+  .default_input::placeholder {
+    font-size: 16px;
+  }
+
+  .main_header__sign_up span {
+    font-size: 14px;
+  }
+
+  .main_header__logo svg {
+    height: 95%;
+  }
+
+  .default__btn {
+    font-size: 14px;
+    padding: 0.1rem 0.2rem;
+    height: 20px;
+  }
+
+  .main_content__layout {
+    height: 100%;
+    width: 100%;
+    max-height: none;
+    margin: 0;
+    margin-top: 30px;
+  }
+
+  .main_content__layout_header {
+    margin-top: 1rem;
+  }
+
+  .default_player_card {
+    width: 80px;
+    height: 80px;
+  }
+
+  .default_info_card {
+    height: 80px;
+  }
+}
+
+/* Телефон */
+@media screen and (max-width: 479px) {
+  .main_content {
+    height: 100%;
+  }
+
+  .default_input {
+    margin-top: 0rem;
+    width: 100%;
+    height: 2rem;
+  }
+
+  .main_header__logo {
+    padding: 5px 5px 0;
+  }
+
+  .main_header__sign_up {
+    width: 20%;
+    padding: 10px 10px 0;
+  }
+
+  .main_header__sign_up span {
+    font-size: 14px;
+  }
+
+  .default__btn {
+    font-size: 14px;
+    height: 30px;
+    padding: 0.2rem 0.5rem;
+    letter-spacing: 0.1em;
+  }
+
+  .main_content__layout {
+    height: 100%;
+    width: 100%;
+    max-height: none;
+    margin: 0;
+    margin-top: 72px;
+  }
+
+  .main_content__layout_header {
+    margin: 0.4rem;
+  }
+
+  .default_player_card {
+    width: 70px;
+    height: 70px;
+  }
+
+  .default_info_card {
+    height: 65px;
+  }
+
+  .default_info_card__title {
+    font-size: 34px;
+  }
+}
+/* 
+@media screen and (orientation: landscape) {
+  .main_content__layout {
+    margin-top: 50px;
+  }
+
+  .main_content__layout_header {
+    margin-top: 0.2rem;
+  }
+
+  .main_header__sign_up {
+    width: 7%;
+    padding: 10px 10px 0;
+  }
+
+  .main_header__sign_up span {
+    font-size: 12px;
+  }
+
+  .default_player_card {
+    margin-top: 25px;
+    width: 90px;
+    height: 90px;
+  }
+
+  .default_info_card {
+    height: 70px;
+  }
+
+  .default_info_card__title {
+    margin-top: 5%;
+    font-size: 34px;
+  }
+
+  .default__btn {
+    height: 30px;
+  }
+
+  .default_info_card__description {
+    font-size: 12px;
+  }
+
+  .default_input {
+    width: 100%;
+  }
+} */

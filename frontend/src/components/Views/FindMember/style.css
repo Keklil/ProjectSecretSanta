@@ -1,0 +1,88 @@
+.games_view {
+    height: 85%;
+    padding: 1% 2%;
+    margin: 64px;
+    background: #FFFFFF;
+    background-color: rgb(255, 255, 255, 0.6);
+    border-radius: 30px;
+}
+
+.button_back {
+    padding: 20px;
+    margin-left: -20px;
+    background: url('../../../assets/back_button.svg');
+    background-repeat: no-repeat;
+}
+
+.container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 2%;
+}
+
+.info_window {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    text-align: center;
+    margin: 0 50px;
+    width: 300px;
+    height: 120px;
+    background: #FFFFFF;
+    border: 1px solid #B1DDFF;
+    box-sizing: border-box;
+    border-radius: 10px;
+}
+
+.info_numbers {
+    font-family: 'Tw Cen MT';
+    font-style: normal;
+    color: #1D71B8;
+    font-weight: 400;
+    font-size: 46px;
+    padding: 2%;
+}
+
+.info_description {
+    font-family: inherit;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 13px;
+    text-align: center;
+    letter-spacing: -0.02em;
+    color: #4295DE;
+}
+
+.container_fullname {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    padding: 32px;
+}
+
+.input_fullname {
+    width: 850px;
+    height: 40px;
+    font-family: inherit;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 15px;
+    align-items: center;
+    letter-spacing: 0.04em;
+    color: #000000;
+    background: #FFFFFF;
+    border: 1px solid #B1DDFF;
+    box-sizing: border-box;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.container_members {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 2%;
+}
