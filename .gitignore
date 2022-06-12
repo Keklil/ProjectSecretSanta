@@ -284,3 +284,6 @@ thumb
 sketch
 
 volumes/
+volumes/data/
+volumes/data/db
+*.init

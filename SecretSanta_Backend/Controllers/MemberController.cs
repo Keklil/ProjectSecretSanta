@@ -6,6 +6,7 @@ using SecretSanta_Backend.ModelsDTO;
 using SecretSanta_Backend.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using SecretSanta_Backend.Services;
 
 namespace SecretSanta_Backend.Controllers
 {
@@ -91,7 +92,7 @@ namespace SecretSanta_Backend.Controllers
                 PreferencesView wishes = new PreferencesView
                 {
                     Name = member.Surname + " " + member.Name + " " + member.Patronymic,
-                    PhoneNumber = address != null ? address.PhoneNumber : null,
+                    PhoneNumber = address != null ? address.PhoneNumber.PhoneViewFormat() : null,
                     Zip = address != null ? address.Zip : null,
                     Region = address != null ? address.Region : null,
                     City = address != null ? address.City : null,
@@ -125,6 +126,7 @@ namespace SecretSanta_Backend.Controllers
         {
             try
             {
+                _logger.LogError("Post call.");
                 if (preferences is null)
                 {
                     _logger.LogError("Preferences object recived from client is null.");
@@ -162,7 +164,7 @@ namespace SecretSanta_Backend.Controllers
                     {
                         Id = Guid.NewGuid(),
                         MemberId = member.Id,
-                        PhoneNumber = preferences.PhoneNumber,
+                        PhoneNumber = preferences.PhoneNumber.PhoneDbFormat(),
                         Zip = preferences.Zip,
                         Region = preferences.Region,
                         City = preferences.City,
@@ -173,7 +175,7 @@ namespace SecretSanta_Backend.Controllers
                 }
                 else
                 {
-                    addressSearch.PhoneNumber = preferences.PhoneNumber != null ? preferences.PhoneNumber : addressSearch.PhoneNumber;
+                    addressSearch.PhoneNumber = preferences.PhoneNumber != null ? preferences.PhoneNumber.PhoneDbFormat() : addressSearch.PhoneNumber;
                     addressSearch.Zip = preferences.Zip != null ? preferences.Zip : addressSearch.Zip;
                     addressSearch.Region = preferences.Region != null ? preferences.Region : addressSearch.Region;
                     addressSearch.City = preferences.City != null ? preferences.City : addressSearch.City;
@@ -217,6 +219,7 @@ namespace SecretSanta_Backend.Controllers
         {
             try
             {
+                _logger.LogError("Update call.");
                 if (preferences is null)
                 {
                     _logger.LogError("Wishes object recived from client is null.");
@@ -253,7 +256,7 @@ namespace SecretSanta_Backend.Controllers
                 member.Name = words[1];
                 member.Patronymic = words[2];
 
-                address.PhoneNumber = preferences.PhoneNumber;
+                address.PhoneNumber = preferences.PhoneNumber.PhoneDbFormat();
                 address.Zip = preferences.Zip;
                 address.Region = preferences.Region;
                 address.City = preferences.City;
