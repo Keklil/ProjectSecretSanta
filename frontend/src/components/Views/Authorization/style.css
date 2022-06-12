@@ -8,8 +8,8 @@
 }
 
 .authorization_box {
-  width: 25%;
-  height: 50%;
+  min-width: 25%;
+  min-height: 45%;
   margin-bottom: 2.5%;
   padding: 2%;
   background-color: #ffffff;
@@ -80,6 +80,71 @@
   border-radius: 6px;
 }
 
+.input_text:hover,
+.input_text:focus {
+  border-color: #1d71b8;
+  outline: none;
+}
+
 .auth__log_in {
   width: 100%;
+}
+
+@media screen and (max-width: 991px) {
+  .constituents_of_authorization {
+    gap: 22px;
+  }
+
+  .authorization_title {
+    margin-top: 3%;
+    font-size: 52px;
+  }
+
+  .authorization_box {
+    min-width: 65%;
+    min-height: 45%;
+  }
+
+  .authorization_box::after {
+    content: '';
+  }
+
+  .authorization_box::before {
+    content: '';
+  }
+
+  .default__btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}
+
+@media screen and (max-width: 479px) {
+  .authorization_title {
+    margin-top: 3%;
+    font-size: 40px;
+  }
+
+  .authorization_box {
+    min-width: 90%;
+    min-height: 60%;
+  }
+
+  .authorization_box::after {
+    content: '';
+  }
+
+  .authorization_box::before {
+    content: '';
+  }
+
+  .default__btn {
+    position: relative;
+    left: 0%;
+  }
+
+  .auth__log_in {
+    width: 100%;
+  }
 }

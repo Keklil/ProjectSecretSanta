@@ -86,6 +86,13 @@ namespace SecretSanta_Backend.Controllers
                     _logger.LogError("Member object is null.");
                     return BadRequest(new { message = "Member not found" });
                 }
+                var @event = await _repository.Event.FindByCondition(x => x.Id == eventId).FirstOrDefaultAsync();
+                if (@event is null)
+                {
+                    _logger.LogError("Member object is null.");
+                    return BadRequest(new { message = "Event doesn't exist" });
+                }
+
                 var address = await _repository.Address.FindByCondition(x => x.MemberId == userId).FirstOrDefaultAsync();
                 var preferences = await _repository.MemberEvent.FindByCondition(x => x.MemberId == userId && x.EventId == eventId).FirstOrDefaultAsync();
 
@@ -103,9 +110,13 @@ namespace SecretSanta_Backend.Controllers
 
                 if (preferences is null)
                 {
-                    return Ok(new { wishes, message = "Member does not participate in the event until now" });
+                    return Ok(new { wishes, message = "Member joins for the first time" });
                 }
-                return Ok(wishes);
+                if (preferences.MemberAttend is false)
+                {
+                    return Ok(new { wishes, message = "Member has already left the game" });
+                }
+                return Ok(new { wishes, message = "Member participates" });
             }
             catch (Exception ex)
             {
@@ -113,7 +124,7 @@ namespace SecretSanta_Backend.Controllers
                 return StatusCode(500, new { message = "Internal server error" });
             }
         }
-        
+
         /// <summary>
         /// Запись данных пользователя, необходимы для участия в игре.
         /// </summary>
@@ -206,7 +217,7 @@ namespace SecretSanta_Backend.Controllers
                 return StatusCode(500, new { message = "Internal server error" });
             }
         }
-        
+
         /// <summary>
         /// Редактировать данные пользователя, необходимые для участия в игре.
         /// </summary>
@@ -219,7 +230,6 @@ namespace SecretSanta_Backend.Controllers
         {
             try
             {
-                _logger.LogError("Update call.");
                 if (preferences is null)
                 {
                     _logger.LogError("Wishes object recived from client is null.");
@@ -245,7 +255,7 @@ namespace SecretSanta_Backend.Controllers
                 Member member = await _repository.Member.GetMemberByIdAsync(userId);
                 var address = await _repository.Address.FindByCondition(x => x.MemberId == userId).FirstOrDefaultAsync();
                 var memberEvent = await _repository.MemberEvent.FindByCondition(x => x.MemberId == userId && x.EventId == eventId).FirstOrDefaultAsync();
-                if (memberEvent is null)
+                if (memberEvent is null || memberEvent.MemberAttend is false)
                 {
                     _logger.LogError("Member does not participate in the event");
                     return BadRequest(new { message = "Member does not participate in the event" });
@@ -351,9 +361,9 @@ namespace SecretSanta_Backend.Controllers
                     {
                         GiftFromMe giftFromMe = new GiftFromMe
                         {
-                            Name = recipient.Surname + " " + recipient.Name + " " + recipient.Surname,
+                            Name = recipient.Surname + " " + recipient.Name + " " + recipient.Patronymic,
                             Preferences = preferences != null ? preferences : null,
-                            Address = recipientAddress.Zip + ", " + recipientAddress.Region + ", " + recipientAddress.City + ", " + recipientAddress.Street + ", тел. " + recipientAddress.PhoneNumber
+                            Address = recipientAddress.Zip + ", " + recipientAddress.Region + ", " + recipientAddress.City + ", " + recipientAddress.Street + ", тел. " + recipientAddress.PhoneNumber.PhoneViewFormat()
                         };
                         return Ok(giftFromMe);
                     }
@@ -361,9 +371,9 @@ namespace SecretSanta_Backend.Controllers
                     {
                         GiftFromMe giftFromMe = new GiftFromMe
                         {
-                            Name = recipient.Surname + " " + recipient.Name + " " + recipient.Surname,
+                            Name = recipient.Surname + " " + recipient.Name + " " + recipient.Patronymic,
                             Preferences = preferences != null ? preferences : null,
-                            Address = recipientAddress.Zip + ", " + recipientAddress.Region + ", " + recipientAddress.City + ", " + recipientAddress.Street + ", кв. " + recipientAddress.Apartment + ", тел. " + recipientAddress.PhoneNumber
+                            Address = recipientAddress.Zip + ", " + recipientAddress.Region + ", " + recipientAddress.City + ", " + recipientAddress.Street + ", кв. " + recipientAddress.Apartment + ", тел. " + recipientAddress.PhoneNumber.PhoneViewFormat()
                         };
                         return Ok(giftFromMe);
                     }

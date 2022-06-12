@@ -73,8 +73,7 @@ function App() {
 
   const handleLogout = () => {
     if (!confirm('Выйти?')) return;
-
-    // removeCookie('token', { expires: new Date() });
+    removeCookie('token', { path: '/', expires: new Date() });
     setUser(undefined);
   };
 
@@ -93,7 +92,7 @@ function App() {
         <Routes>
           {user?.role === 'admin' && (
             <>
-              <Route path="/admin" element={<Home />} />
+              {/* <Route path="/" element={<Home />} /> */}
               <Route path="/admin/games" element={<ReadyGames serverController={serverController} user={user} />} />
               <Route path="/admin/createGame" element={<EditGame serverController={serverController} user={user} />} />
               <Route path="/admin/editGame/:id" element={<EditGame serverController={serverController} user={user} />} />
@@ -104,7 +103,7 @@ function App() {
               <Route path="/game/:id" element={<GameMain serverController={serverController} user={user} setUser={setUser} />} />
               <Route path="/joinGame/:id" element={<Main serverController={serverController} user={user} />} />
               <Route path="/myWishes/:id" element={<Wishes serverController={serverController} user={user} />} />
-              <Route path="/" element={<Main serverController={serverController} user={user} />} />
+              <Route path="/" element={user.role === 'admin' ? <Home /> : <Main serverController={serverController} user={user} />} />
             </>
           )}
         </Routes>

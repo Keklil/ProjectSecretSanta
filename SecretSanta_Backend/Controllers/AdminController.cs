@@ -302,5 +302,15 @@ namespace SecretSanta_Backend.Controllers
                 return StatusCode(500, new { message = "Internal server error" });
             }
         }
+        [HttpPost("events/{eventId}")]
+        public async Task<ActionResult> ReshuffleM(Guid eventId)
+        {
+            var mailService = new MailService();
+            var reshuffleService = new ReshuffleService();
+
+            await reshuffleService.Reshuffle(eventId);
+            //await mailService.sendEmailsWithDesignatedRecipient(eventId);
+            return Ok(eventId);
+        }
     } 
 }

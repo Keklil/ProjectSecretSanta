@@ -88,6 +88,27 @@ namespace SecretSanta_Backend.Controllers
             }
         }
 
+        private string GenerateJwtToken(Member member)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes(_config["Jwt:key"]);
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new Claim[]
+                {
+                    new Claim("UserID", member.Id.ToString()),
+                    //new Claim(ClaimTypes.Email, member.Email.ToString()),
+                    new Claim(ClaimTypes.Role, member.Role.ToString())
+                }),
+                Expires = DateTime.UtcNow.AddHours(1),
+                Issuer = _config["Jwt:Issuer"],
+                Audience = _config["Jwt:Audience"],
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
+        }   
+        
         private Member? ValidMember(MemberLogin data)
         {
             string ldapServer = _config["LdapServer"];
@@ -122,27 +143,6 @@ namespace SecretSanta_Backend.Controllers
                 }
             };
             return member;
-        }
-
-        private string GenerateJwtToken(Member member)
-        {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_config["Jwt:key"]);
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new Claim[]
-                {
-                    new Claim("UserID", member.Id.ToString()),
-                    //new Claim(ClaimTypes.Email, member.Email.ToString()),
-                    new Claim(ClaimTypes.Role, member.Role.ToString())
-                }),
-                Expires = DateTime.UtcNow.AddHours(1),
-                Issuer = _config["Jwt:Issuer"],
-                Audience = _config["Jwt:Audience"],
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(token);
         }
     }
 }

@@ -34,9 +34,9 @@ const Header: FC<IHeaderProps> = ({ children, user, waitAuth, handleAuth, handle
 
   return (
     <React.Fragment>
-      <header className="main_header">
+      <header className={['main_header', !user && !waitAuth ? 'header__black' : null].join(' ')}>
         <div className="main_header__logo">
-          <Logo onClick={() => nav(user?.role === 'admin' ? '../admin' : '../')} />
+          <Logo onClick={() => nav('../')} />
         </div>
         {!!user && (
           <div className="main_header__sign_up" onClick={handleLogout}>

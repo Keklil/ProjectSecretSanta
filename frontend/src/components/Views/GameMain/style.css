@@ -7,7 +7,7 @@
 .info_card__group {
   display: grid;
   /* display: flex; */
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: repeat(4, 1fr);
   grid-gap: 2rem;
   /* justify-content: space-between; */
 }
@@ -38,9 +38,9 @@
 
 @media screen and (max-width: 991px) {
   .info_card__group {
-    grid-template-columns: 1fr 1fr;
-    grid-gap: 3rem 6rem;
-    padding: 0 4rem;
+    grid-template-columns: repeat(2, 1fr);
+    /* grid-gap: 3rem 6rem; */
+    padding: 0 3rem;
   }
 
   .game_main_content__my_wishes_text {
@@ -50,7 +50,7 @@
 
 @media screen and (max-width: 479px) {
   .info_card__group {
-    margin: 0 2%;
+    /* margin-left: 2%; */
     grid-gap: 0.5rem 1.5rem;
     padding: 10px 0;
   }

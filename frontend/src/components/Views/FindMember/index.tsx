@@ -27,7 +27,7 @@ const FindMember: React.FC<IFindMemberProps> = ({ serverController, user, gameDa
 
   return (
     <>
-      <section className="container">
+      <section className="find_member__container">
         <div className="info_window">
           <p className="info_numbers">{new Date(String(gameData?.endRegistration)).toLocaleDateString()}</p>
           <span className="info_description">Дата жеребьёвки</span>

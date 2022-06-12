@@ -47,21 +47,95 @@
 
 .home_view__btn_create,
 .home_view__btn_games {
-  padding: 0.8% 2% !important;
-  font-size: 24px;
-
+  padding: 0.6% 2% !important;
+  font-size: 32px;
   text-decoration: none;
 }
 
 .home_view__btn_create {
   position: absolute;
-  /* padding: 0.8% 2%; */
   top: 85%;
-  left: 13.5%;
+  left: 10%;
 }
 
 .home_view__btn_games {
   position: absolute;
   top: 85%;
-  left: 33%;
+  left: 30%;
+}
+
+@media screen and (max-width: 991px) {
+  .home_view {
+    flex-direction: column;
+    background-position: bottom 5% center;
+    background-size: 60vh;
+    text-align: center;
+  }
+
+  .home_view span {
+    font-size: 7vw;
+    position: relative;
+    top: 3.5%;
+  }
+
+  .home_view span::before {
+    font-size: 14vw;
+    top: -50%;
+    left: -3%;
+  }
+
+  .home_view span::after {
+    font-size: 14vw;
+    top: 60%;
+    left: 8%;
+  }
+
+  .home_view__btn_create {
+    top: 93%;
+    left: 25%;
+
+  }
+
+  .home_view__btn_games {
+    top: 93%;
+    left: 60%;
+  }
+}
+
+@media screen and (max-width: 479px) {
+  .home_view {
+    flex-direction: column;
+    background-position: bottom 20% center;
+    background-size: 55vh;
+  }
+
+  .home_view span {
+    font-size: 10vw;
+    top: 5%;
+  }
+
+  .home_view span::before {
+    font-size: 20vw;
+    top: -70%;
+    left: -4.5%;
+  }
+
+  .home_view span::after {
+    font-size: 20vw;
+  }
+
+  .home_view__btn_create {
+    top: 90%;
+    left: 10%;
+  }
+
+  .home_view__btn_games {
+    top: 90%;
+    left: 70%;
+  }
+
+  .home_view__btn_create,
+  .home_view__btn_games {
+    width: 100px;
+  }
 }

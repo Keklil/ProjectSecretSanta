@@ -59,7 +59,7 @@ const Main: React.FC<IDefaultProps> = ({ serverController, user }) => {
               Вы уже участник <br />
               игры “{gameData.description}”
             </span>
-            <button style={{ marginTop: '3%' }} className="default__btn" onClick={acceptGame}>
+            <button style={{ marginTop: '3%' }} className="default__btn accept" onClick={acceptGame}>
               Перейти к игре
             </button>
           </>

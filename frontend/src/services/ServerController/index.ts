@@ -1,5 +1,5 @@
 class ServerController implements IServerController {
-    private serverUrl = 'http://localhost:5000/';
+  private serverUrl = 'http://localhost:5000/';
   private userSignIn = false;
   private token?: string;
   private role?: UserRole;

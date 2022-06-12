@@ -18,7 +18,7 @@ namespace SecretSanta_Backend.Services
 
         public async Task Reshuffle(Guid eventId)
         {
-            var @event = await repository.Event.FindAll().Where(x => x.Id == eventId).SingleAsync();
+            var @event = await repository.Event.FindByCondition(x => x.Id == eventId).FirstOrDefaultAsync();
             participants = await repository.MemberEvent.FindAll()
                 .Where(x => x.EventId == eventId && x.MemberAttend == true)
                 .Select(x => x.MemberId)
@@ -30,8 +30,10 @@ namespace SecretSanta_Backend.Services
                 MakePairsWithPairs();
             else
                 MakePairsWithoutPairs();
-            await SaveReshuffle();
+            await SaveReshuffle(eventId);
             @event.Reshuffle = true;
+            @event.EndRegistration = @event.EndRegistration.SetKindUtc();
+            @event.EndEvent = @event.EndEvent.SetKindUtc();
             repository.Event.Update(@event);
             await repository.SaveAsync();
         }
@@ -39,7 +41,7 @@ namespace SecretSanta_Backend.Services
 
         private void Shuffle()
         {
-            Random rand = new Random();           
+            Random rand = new Random();
             for (int i = participants.Count - 1; i >= 1; i--)
             {
                 int j = rand.Next(i + 1);
@@ -79,17 +81,17 @@ namespace SecretSanta_Backend.Services
         private void MakePairsWithoutPairs()
         {
             assignedPairs = participants.Where((e, i) => i < participants.Count - 1)
-                .Select((e, i) => new { A = e, B = participants[i + 1] }).ToDictionary(x=> x.A, x=> x.B);
+                .Select((e, i) => new { A = e, B = participants[i + 1] }).ToDictionary(x => x.A, x => x.B);
             assignedPairs.Add(participants[participants.Count - 1], participants[0]);
         }
 
 
-        private async Task SaveReshuffle()
+        private async Task SaveReshuffle(Guid eventId)
         {
             foreach (var assignedPair in assignedPairs)
             {
-                var participant = await repository.MemberEvent.FindByCondition(x => x.MemberId == assignedPair.Key).SingleAsync();
-                participant.Recipient = assignedPair.Key;
+                var participant = await repository.MemberEvent.FindByCondition(x => x.MemberId == assignedPair.Key && x.EventId == eventId).FirstOrDefaultAsync();
+                participant.Recipient = assignedPair.Value;
                 repository.MemberEvent.Update(participant);
             }
             await repository.SaveAsync();

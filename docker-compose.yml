@@ -34,5 +34,3 @@ services:
     image: 'sample:prod'
     depends_on:
       - secretsanta_backend
-    #links:
-       #- secretsanta_backend:secretsanta_backend
